@@ -300,6 +300,11 @@
                 <button onclick="switchTab('referrals')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 font-medium transition-all" data-target="referrals">
                     <i class="fa-solid fa-users w-5 text-center"></i> <span>Referrals</span>
                 </button>
+                
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-6 mb-2 ml-2">Support</div>
+                <a href="https://t.me/ngltraders" target="_blank" class="w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 font-medium transition-all">
+                    <i class="fa-brands fa-telegram w-5 text-center"></i> <span>Live Chat</span>
+                </a>
             </nav>
 
             <div class="p-4 m-4 glass-panel rounded-2xl border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onclick="switchTab('profile')">
@@ -326,7 +331,12 @@
                     </div>
                     <span class="font-bold text-white tracking-wide">Crysto</span>
                 </div>
-                <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white text-sm font-bold border border-white/20" id="mobile-avatar" onclick="switchTab('profile')">U</div>
+                <div class="flex items-center space-x-3">
+                    <a href="https://t.me/ngltraders" target="_blank" class="w-8 h-8 rounded-full bg-[#0088cc]/20 flex items-center justify-center text-[#0088cc] border border-[#0088cc]/30">
+                        <i class="fa-brands fa-telegram text-sm"></i>
+                    </a>
+                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white text-sm font-bold border border-white/20" id="mobile-avatar" onclick="switchTab('profile')">U</div>
+                </div>
             </header>
 
             <div class="p-6 md:p-10 max-w-6xl w-full mx-auto">
@@ -896,6 +906,13 @@
                                 <i class="fa-solid fa-arrow-up-from-bracket text-red-400 mr-2"></i> <span>0.00</span>
                             </h3>
                         </div>
+                        <div class="glass-panel rounded-2xl p-5 border border-white/5 relative overflow-hidden">
+                            <div class="absolute -right-6 -top-6 w-20 h-20 bg-orange-500/10 rounded-full blur-xl pointer-events-none"></div>
+                            <p class="text-xs text-gray-400 mb-1 uppercase tracking-wider font-semibold">Downline Games Played</p>
+                            <h3 id="ref-down-games" class="text-xl font-bold text-white flex items-center mt-2">
+                                <i class="fa-solid fa-gamepad text-orange-400 mr-2"></i> <span>0</span>
+                            </h3>
+                        </div>
                     </div>
 
                     <div class="glass-panel rounded-3xl p-8 border border-white/5">
@@ -919,10 +936,16 @@
                                 <p id="profile-email-display" class="text-gray-400">email@example.com</p>
                             </div>
                         </div>
-                        <button id="btn-logout" class="flex items-center space-x-2 text-red-400 hover:text-red-300 transition-colors font-medium bg-red-500/10 px-6 py-3 rounded-xl border border-red-500/20">
-                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                            <span>Secure Logout</span>
-                        </button>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <a href="https://t.me/ngltraders" target="_blank" class="flex items-center justify-center space-x-2 text-white font-bold bg-[#0088cc] hover:bg-[#0077b5] px-6 py-3 rounded-xl transition-colors flex-1 shadow-[0_0_15px_rgba(0,136,204,0.3)]">
+                                <i class="fa-brands fa-telegram text-xl"></i>
+                                <span>Live Support</span>
+                            </a>
+                            <button id="btn-logout" class="flex items-center justify-center space-x-2 text-red-400 hover:text-red-300 transition-colors font-medium bg-red-500/10 px-6 py-3 rounded-xl border border-red-500/20 flex-1">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                <span>Secure Logout</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -1023,7 +1046,7 @@
         let profile = {};
         let wallet = { usdt: 1000, dcPlus: 0, dc: 50, claimedYield: 0 }; // Default mock start
         let stakes = [ { id: 'mock-stake-1', amount: 1000, date: Date.now() - (86400000 * 5) } ]; // Pre-populate with 1000 DC+ staked 5 days ago
-        let refStats = { rank: 'Gold Affiliate', count: 24, income: 450.75, downlineVolume: 32400.00, downlineDeposits: 21500.00, downlineWithdrawals: 5200.00 }; // Mock Referral Stats
+        let refStats = { rank: 'Gold Affiliate', count: 24, income: 450.75, downlineVolume: 32400.00, downlineDeposits: 21500.00, downlineWithdrawals: 5200.00, downlineGamesPlayed: 342 }; // Mock Referral Stats
         let completedTasks = [];
         let unsubWallet = null;
         let unsubStakes = null;
@@ -1286,6 +1309,7 @@
             document.querySelector('#ref-down-vol span').innerText = formatNum(refStats.downlineVolume) + ' USDT';
             document.querySelector('#ref-down-dep span').innerText = formatNum(refStats.downlineDeposits) + ' USDT';
             document.querySelector('#ref-down-wd span').innerText = formatNum(refStats.downlineWithdrawals) + ' USDT';
+            document.querySelector('#ref-down-games span').innerText = refStats.downlineGamesPlayed;
         }
 
         async function saveWallet() {
