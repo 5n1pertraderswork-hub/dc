@@ -115,15 +115,21 @@
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
+        /* Scroll Smoothness for Mobile */
+        .scroller {
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+        }
 
         /* Toast */
         .toast { transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); transform: translateX(120%); opacity: 0; }
         .toast.show { transform: translateX(0); opacity: 1; }
     </style>
 </head>
-<body class="min-h-screen overflow-hidden flex flex-col relative">
+<body class="h-[100dvh] w-full overflow-hidden flex flex-col relative">
 
     <!-- Background Animated Blobs -->
     <div class="fixed inset-0 w-full h-full overflow-hidden pointer-events-none z-[-1]">
@@ -236,7 +242,7 @@
         </div>
     </div>
 
-    <div id="app-layout" class="hidden flex-1 flex h-screen w-full relative z-10">
+    <div id="app-layout" class="hidden flex-1 flex h-[100dvh] w-full relative z-10">
         
         <!-- Sidebar -->
         <aside class="w-64 glass-panel border-r border-white/5 hidden md:flex flex-col z-20 shadow-2xl">
@@ -288,7 +294,7 @@
         </aside>
 
         <!-- Main Content Area -->
-        <main class="flex-1 flex flex-col h-full overflow-y-auto pb-24 md:pb-0 relative scroll-smooth">
+        <main class="flex-1 block h-full overflow-y-auto overflow-x-hidden scroller pb-36 md:pb-10 relative scroll-smooth w-full">
             
             <!-- Mobile Header -->
             <header class="md:hidden h-16 flex items-center justify-between px-6 border-b border-white/5 glass-panel sticky top-0 z-30">
@@ -363,12 +369,16 @@
                                     <span id="stat-staked" class="font-bold text-white text-lg">0.00</span>
                                 </div>
                                 <div class="flex justify-between items-center pb-4 border-b border-white/10">
+                                    <span class="text-gray-400">Daily Reward (~0.1%)</span>
+                                    <span id="stat-daily" class="font-bold text-brand-cyan text-lg">+0.00</span>
+                                </div>
+                                <div class="flex justify-between items-center pb-4 border-b border-white/10">
                                     <span class="text-gray-400">Total Yield Earned</span>
                                     <span id="stat-earned" class="font-bold text-green-400 text-lg">+0.00</span>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-400">Est. Next 30 Days (3%)</span>
-                                    <span id="stat-projected" class="font-bold text-brand-cyan text-lg">0.00</span>
+                                    <span id="stat-projected" class="font-bold text-brand-purple text-lg">0.00</span>
                                 </div>
                             </div>
                         </div>
@@ -396,11 +406,21 @@
 
                 <div id="tab-banking" class="tab-pane">
                     <h2 class="text-3xl font-bold text-white tracking-tight mb-2">Fiat & Crypto Banking</h2>
-                    <p class="text-gray-400 mb-10">Manage your deposits and withdrawals securely.</p>
+                    <p class="text-gray-400 mb-8">Manage your deposits and withdrawals securely.</p>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Bank Toggles -->
+                    <div class="flex space-x-4 mb-8 bg-black/40 p-2 rounded-2xl border border-white/5 w-full max-w-md">
+                        <button onclick="toggleBankMode('deposit')" id="btn-mode-deposit" class="flex-1 py-3 rounded-xl font-bold text-brand-dark bg-gradient-to-r from-brand-cyan to-brand-blue transition-all text-sm flex items-center justify-center space-x-2 shadow-[0_0_15px_rgba(0,242,254,0.3)]">
+                            <i class="fa-solid fa-arrow-down-to-line"></i><span>Deposit</span>
+                        </button>
+                        <button onclick="toggleBankMode('withdraw')" id="btn-mode-withdraw" class="flex-1 py-3 rounded-xl font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-all text-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i><span>Withdraw</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-8 max-w-2xl">
                         <!-- Deposit -->
-                        <div class="glass-panel rounded-[2rem] p-8 relative overflow-hidden">
+                        <div id="form-deposit" class="glass-panel rounded-[2rem] p-8 relative overflow-hidden transition-all duration-300">
                             <div class="absolute -right-20 -top-20 w-64 h-64 bg-green-500/10 rounded-full blur-3xl pointer-events-none"></div>
                             <h3 class="text-xl font-bold text-white mb-6 flex items-center"><i class="fa-solid fa-arrow-down-to-line text-green-400 mr-3"></i> Deposit USDT</h3>
                             
@@ -425,7 +445,7 @@
                         </div>
 
                         <!-- Withdraw -->
-                        <div class="glass-panel rounded-[2rem] p-8 relative overflow-hidden">
+                        <div id="form-withdraw" class="hidden glass-panel rounded-[2rem] p-8 relative overflow-hidden transition-all duration-300">
                             <div class="absolute -right-20 -top-20 w-64 h-64 bg-red-500/10 rounded-full blur-3xl pointer-events-none"></div>
                             <h3 class="text-xl font-bold text-white mb-6 flex items-center"><i class="fa-solid fa-arrow-up-from-bracket text-red-400 mr-3"></i> Withdraw USDT</h3>
                             
@@ -590,7 +610,7 @@
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <!-- Coin Flip Game -->
-                        <div class="glass-panel rounded-[2rem] p-8 flex flex-col items-center border border-brand-cyan/20 relative overflow-hidden group hover:border-brand-cyan/50 transition-colors">
+                        <div class="glass-panel rounded-[2rem] p-8 flex flex-col items-center border border-brand-cyan/20 relative overflow-hidden group hover:border-brand-cyan/50 transition-colors" style="touch-action: pan-y;">
                             <div class="absolute inset-0 bg-brand-cyan/5 pointer-events-none group-hover:bg-brand-cyan/10 transition-colors"></div>
                             <h3 class="text-xl font-bold text-white mb-2 relative z-10">Quantum Coin Flip</h3>
                             <p class="text-xs text-gray-400 mb-6 relative z-10 text-center">Predict Heads or Tails.</p>
@@ -621,7 +641,7 @@
                         </div>
 
                         <!-- Number Predictor Game -->
-                        <div class="glass-panel rounded-[2rem] p-8 flex flex-col items-center border border-brand-purple/20 relative overflow-hidden group hover:border-brand-purple/50 transition-colors">
+                        <div class="glass-panel rounded-[2rem] p-8 flex flex-col items-center border border-brand-purple/20 relative overflow-hidden group hover:border-brand-purple/50 transition-colors" style="touch-action: pan-y;">
                             <div class="absolute inset-0 bg-brand-purple/5 pointer-events-none group-hover:bg-brand-purple/10 transition-colors"></div>
                             <h3 class="text-xl font-bold text-white mb-2 relative z-10">Roulette Predictor</h3>
                             <p class="text-xs text-gray-400 mb-6 relative z-10 text-center">Predict the exact number (1-10).</p>
@@ -731,7 +751,7 @@
         let user = null;
         let profile = {};
         let wallet = { usdt: 1000, dcPlus: 0, dc: 50 }; // Default mock start
-        let stakes = [];
+        let stakes = [ { amount: 1000, date: Date.now() - (86400000 * 5) } ]; // Pre-populate with 1000 DC+ staked 5 days ago
         let completedTasks = [];
         let unsubWallet = null;
         let unsubStakes = null;
@@ -805,6 +825,25 @@
             });
         };
 
+        window.toggleBankMode = (mode) => {
+            const btnDep = document.getElementById('btn-mode-deposit');
+            const btnWith = document.getElementById('btn-mode-withdraw');
+            const formDep = document.getElementById('form-deposit');
+            const formWith = document.getElementById('form-withdraw');
+
+            if(mode === 'deposit') {
+                btnDep.className = "flex-1 py-3 rounded-xl font-bold text-brand-dark bg-gradient-to-r from-brand-cyan to-brand-blue transition-all text-sm flex items-center justify-center space-x-2 shadow-[0_0_15px_rgba(0,242,254,0.3)]";
+                btnWith.className = "flex-1 py-3 rounded-xl font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-all text-sm flex items-center justify-center space-x-2";
+                formDep.classList.remove('hidden');
+                formWith.classList.add('hidden');
+            } else {
+                btnWith.className = "flex-1 py-3 rounded-xl font-bold text-brand-dark bg-gradient-to-r from-brand-cyan to-brand-blue transition-all text-sm flex items-center justify-center space-x-2 shadow-[0_0_15px_rgba(0,242,254,0.3)]";
+                btnDep.className = "flex-1 py-3 rounded-xl font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-all text-sm flex items-center justify-center space-x-2";
+                formWith.classList.remove('hidden');
+                formDep.classList.add('hidden');
+            }
+        };
+
         const formatNum = (num) => Number(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
         document.getElementById('btn-login').addEventListener('click', async () => {
@@ -842,7 +881,10 @@
                         const pSnap = await getDoc(pref);
                         if(!pSnap.exists()) {
                             profile = { name: window.tempName || 'Demo', email: window.tempEmail || 'demo@crysto.app', ref: 'CRY-'+u.uid.substring(0,6) };
+                            wallet = { usdt: 1000, dcPlus: 0, dc: 50 };
                             await setDoc(pref, { profile, wallet, completedTasks });
+                            // Add an initial mock stake for new users so the dashboard looks active immediately
+                            await addDoc(collection(db, 'users', u.uid, 'stakes'), { amount: 1000, date: Date.now() - (86400000 * 5) });
                         } else {
                             const data = pSnap.data();
                             profile = data.profile; wallet = data.wallet || wallet; completedTasks = data.completedTasks || [];
@@ -1054,6 +1096,7 @@
             }
             
             document.getElementById('stat-staked').innerText = formatNum(total) + ' DC+';
+            document.getElementById('stat-daily').innerText = '+' + formatNum(total * 0.001) + ' DC+';
             document.getElementById('stat-earned').innerText = '+' + formatNum(earned) + ' DC+';
             document.getElementById('stat-projected').innerText = '+' + formatNum(total * 0.03) + ' DC+';
         }
