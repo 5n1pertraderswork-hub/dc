@@ -434,7 +434,7 @@
                                 </div>
                                 
                                 <div class="bg-black/30 rounded-xl p-4 border border-white/5 text-sm">
-                                    <div class="flex justify-between text-gray-400 mb-1"><span>Network:</span><span class="text-white">TRC-20</span></div>
+                                    <div class="flex justify-between text-gray-400 mb-1"><span>Network:</span><span class="text-white">BEP20</span></div>
                                     <div class="flex justify-between text-gray-400"><span>Fee:</span><span class="text-green-400">Free</span></div>
                                 </div>
 
@@ -462,8 +462,8 @@
                                 </div>
                                 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-400 mb-2">Destination Address (TRC-20)</label>
-                                    <input type="text" placeholder="T..." class="w-full glass-input rounded-xl px-4 py-3.5 text-white font-mono text-sm focus:outline-none">
+                                    <label class="block text-sm font-medium text-gray-400 mb-2">Destination Address (BEP20)</label>
+                                    <input type="text" placeholder="0x..." class="w-full glass-input rounded-xl px-4 py-3.5 text-white font-mono text-sm focus:outline-none">
                                 </div>
 
                                 <button onclick="handleWithdraw()" class="w-full bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/30 font-bold py-3.5 rounded-xl transition-all">
@@ -476,43 +476,43 @@
 
                 <div id="tab-swap" class="tab-pane">
                     <h2 class="text-3xl font-bold text-white tracking-tight mb-2">Swap Protocol</h2>
-                    <p class="text-gray-400 mb-10">Convert your USDT to DC+ (1:1 Ratio) to enable staking.</p>
+                    <p class="text-gray-400 mb-10">Convert your tokens seamlessly (1:1 Ratio) with zero slippage.</p>
 
                     <div class="max-w-md mx-auto glass-panel rounded-[2rem] p-8 relative overflow-hidden">
                         <!-- Decor -->
                         <div class="absolute -right-20 -top-20 w-64 h-64 bg-brand-cyan/10 rounded-full blur-3xl pointer-events-none"></div>
 
-                        <!-- From USDT -->
-                        <div class="bg-black/40 rounded-2xl p-4 border border-white/10 mb-2">
+                        <!-- From Asset -->
+                        <div class="bg-black/40 rounded-2xl p-4 border border-white/10 mb-2 transition-all" id="swap-from-container">
                             <div class="flex justify-between text-sm mb-2">
                                 <span class="text-gray-400">From</span>
-                                <span class="text-gray-400 cursor-pointer hover:text-brand-cyan transition-colors" onclick="setMaxSwap()">Balance: <span id="swap-usdt-bal" class="text-white font-mono">0.00</span> Max</span>
+                                <span class="text-gray-400 cursor-pointer hover:text-brand-cyan transition-colors" onclick="setMaxSwap()">Balance: <span id="swap-from-bal" class="text-white font-mono">0.00</span> Max</span>
                             </div>
                             <div class="flex items-center justify-between">
                                 <input type="number" id="swap-amount" placeholder="0.0" class="w-full bg-transparent text-3xl font-bold text-white focus:outline-none placeholder-gray-600">
-                                <div class="flex items-center space-x-2 bg-white/10 px-3 py-1.5 rounded-xl shrink-0">
+                                <div class="flex items-center space-x-2 bg-white/10 px-3 py-1.5 rounded-xl shrink-0" id="swap-from-token">
                                     <div class="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-xs"><i class="fa-solid fa-dollar-sign"></i></div>
                                     <span class="font-bold text-white">USDT</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Arrow -->
+                        <!-- Arrow Toggle -->
                         <div class="flex justify-center -my-3 relative z-10">
-                            <div class="w-10 h-10 rounded-full bg-brand-dark border-4 border-gray-800 flex items-center justify-center text-brand-cyan">
-                                <i class="fa-solid fa-arrow-down"></i>
-                            </div>
+                            <button onclick="toggleSwapDirection()" class="w-10 h-10 rounded-full bg-brand-dark border-4 border-gray-800 flex items-center justify-center text-brand-cyan hover:text-white hover:scale-110 hover:rotate-180 transition-transform duration-300 cursor-pointer shadow-lg">
+                                <i class="fa-solid fa-arrow-down-up-across-line"></i>
+                            </button>
                         </div>
 
-                        <!-- To DC+ -->
-                        <div class="bg-black/40 rounded-2xl p-4 border border-white/10 mt-2 mb-8">
+                        <!-- To Asset -->
+                        <div class="bg-black/40 rounded-2xl p-4 border border-white/10 mt-2 mb-8 transition-all" id="swap-to-container">
                             <div class="flex justify-between text-sm mb-2">
                                 <span class="text-gray-400">To (Estimated)</span>
-                                <span class="text-gray-400">Balance: <span id="swap-dcplus-bal" class="text-white font-mono">0.00</span></span>
+                                <span class="text-gray-400">Balance: <span id="swap-to-bal" class="text-white font-mono">0.00</span></span>
                             </div>
                             <div class="flex items-center justify-between">
                                 <input type="text" id="swap-receive" placeholder="0.0" disabled class="w-full bg-transparent text-3xl font-bold text-brand-cyan focus:outline-none placeholder-gray-600">
-                                <div class="flex items-center space-x-2 bg-brand-cyan/20 px-3 py-1.5 rounded-xl shrink-0">
+                                <div class="flex items-center space-x-2 bg-brand-cyan/20 px-3 py-1.5 rounded-xl shrink-0" id="swap-to-token">
                                     <div class="w-6 h-6 rounded-full bg-brand-cyan/30 flex items-center justify-center text-brand-cyan text-xs"><i class="fa-solid fa-gem"></i></div>
                                     <span class="font-bold text-white">DC+</span>
                                 </div>
@@ -769,13 +769,57 @@
         </nav>
     </div>
 
+    <!-- Stake T&C Modal -->
+    <div id="stake-tc-modal" class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-md hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="glass-panel p-8 rounded-[2rem] w-full max-w-md shadow-2xl relative transform scale-95 transition-transform duration-300" id="stake-tc-content">
+            <button onclick="closeStakeTCModal()" class="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="mb-6">
+                <div class="w-16 h-16 rounded-2xl bg-brand-cyan/20 text-brand-cyan mx-auto flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-file-contract text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white text-center">Staking Agreement</h2>
+            </div>
+            <div class="bg-black/40 rounded-xl p-5 border border-white/10 text-sm text-gray-300 space-y-3 mb-6">
+                <p><i class="fa-solid fa-circle-info text-brand-cyan mr-2"></i><strong>2-Year Lock-in:</strong> By staking your DC+, you agree to a mandatory lock-in period of 24 months (730 days).</p>
+                <p><i class="fa-solid fa-triangle-exclamation text-brand-purple mr-2"></i><strong>Early Unstake Penalty:</strong> Withdrawing your funds before the 2-year tenure is complete will incur a strict <strong>30% penalty</strong> on your principal amount.</p>
+                <p><i class="fa-solid fa-check text-green-400 mr-2"></i><strong>Yield:</strong> You will receive a 3% monthly yield calculated daily.</p>
+            </div>
+            <button id="btn-confirm-stake" class="w-full bg-gradient-to-r from-brand-cyan to-brand-blue text-brand-dark font-bold py-4 px-6 rounded-xl transition-all hover:shadow-[0_0_15px_rgba(0,242,254,0.5)] text-lg">
+                I Agree, Lock My Tokens
+            </button>
+        </div>
+    </div>
+
+    <!-- Unstake Modal -->
+    <div id="unstake-modal" class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-md hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="glass-panel p-8 rounded-[2rem] w-full max-w-md shadow-2xl relative transform scale-95 transition-transform duration-300" id="unstake-content">
+            <button onclick="closeUnstakeModal()" class="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="mb-6 text-center">
+                <div class="w-16 h-16 rounded-2xl bg-red-500/20 text-red-400 mx-auto flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-unlock text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Unstake Confirmation</h2>
+            </div>
+            <div class="bg-black/40 rounded-xl p-5 border border-white/10 text-sm space-y-3 mb-6" id="unstake-details">
+                <!-- dynamically populated -->
+            </div>
+            <button id="btn-confirm-unstake" class="w-full bg-red-500/20 border border-red-500/50 text-red-400 hover:bg-red-500/30 hover:text-red-300 font-bold py-4 px-6 rounded-xl transition-all text-lg">
+                Confirm Unstake
+            </button>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div id="toast-container" class="fixed top-4 right-4 z-[70] flex flex-col space-y-3 pointer-events-none w-full max-w-xs px-4 sm:px-0"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, onSnapshot, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, onSnapshot, query, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const hasFirebaseConfig = typeof __firebase_config !== 'undefined';
         const firebaseConfig = hasFirebaseConfig ? JSON.parse(__firebase_config) : null;
@@ -798,12 +842,14 @@
         let user = null;
         let profile = {};
         let wallet = { usdt: 1000, dcPlus: 0, dc: 50 }; // Default mock start
-        let stakes = [ { amount: 1000, date: Date.now() - (86400000 * 5) } ]; // Pre-populate with 1000 DC+ staked 5 days ago
+        let stakes = [ { id: 'mock-stake-1', amount: 1000, date: Date.now() - (86400000 * 5) } ]; // Pre-populate with 1000 DC+ staked 5 days ago
         let refStats = { rank: 'Gold Affiliate', count: 24, income: 450.75, downlineVolume: 32400.00, downlineDeposits: 21500.00, downlineWithdrawals: 5200.00 }; // Mock Referral Stats
         let completedTasks = [];
         let unsubWallet = null;
         let unsubStakes = null;
         window.consecutiveLosses = 0; // Rigged game tracker
+        window.pendingStakeAmount = 0;
+        window.pendingUnstakeId = null;
 
         const tasksList = [
             { id: 't1', title: 'Follow on Twitter', reward: 50, icon: 'fa-twitter', color: 'text-blue-400' },
@@ -842,6 +888,57 @@
             content.classList.remove('scale-100');
             content.classList.add('scale-95');
             setTimeout(() => modal.classList.add('hidden'), 300);
+        };
+
+        window.closeStakeTCModal = () => {
+            const modal = document.getElementById('stake-tc-modal');
+            const content = document.getElementById('stake-tc-content');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+            window.pendingStakeAmount = 0;
+        };
+
+        window.closeUnstakeModal = () => {
+            const modal = document.getElementById('unstake-modal');
+            const content = document.getElementById('unstake-content');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+            window.pendingUnstakeId = null;
+        };
+
+        window.openUnstakeModal = (id) => {
+            const stake = stakes.find(s => s.id === id);
+            if (!stake) return;
+            window.pendingUnstakeId = id;
+            
+            const twoYearsMs = 2 * 365 * 24 * 60 * 60 * 1000;
+            const timeStaked = Date.now() - stake.date;
+            const isEarly = timeStaked < twoYearsMs;
+            
+            const penaltyRate = isEarly ? 0.30 : 0;
+            const penaltyAmount = stake.amount * penaltyRate;
+            const finalAmount = stake.amount - penaltyAmount;
+            
+            const detailsEl = document.getElementById('unstake-details');
+            detailsEl.innerHTML = `
+                <div class="flex justify-between text-gray-300 mb-2"><span>Principal:</span><span class="text-white font-mono">${formatNum(stake.amount)} DC+</span></div>
+                <div class="flex justify-between text-gray-300 mb-2"><span>Lock-in Status:</span><span class="${isEarly ? 'text-red-400' : 'text-green-400'} font-bold">${isEarly ? 'Early Withdrawal' : 'Tenure Completed'}</span></div>
+                ${isEarly ? `<div class="flex justify-between text-gray-300 mb-2"><span>Early Penalty (30%):</span><span class="text-red-400 font-mono">-${formatNum(penaltyAmount)} DC+</span></div>` : ''}
+                <div class="flex justify-between text-gray-300 pt-3 border-t border-white/10 mt-3"><span>Final Receive:</span><span class="text-brand-cyan font-bold text-lg">${formatNum(finalAmount)} DC+</span></div>
+            `;
+            
+            const modal = document.getElementById('unstake-modal');
+            const content = document.getElementById('unstake-content');
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            });
         };
 
         window.showToast = (msg, type = 'success') => {
@@ -1028,8 +1125,9 @@
             document.getElementById('bal-usdt').innerText = formatNum(wallet.usdt);
             document.getElementById('bal-dcplus').innerText = formatNum(wallet.dcPlus);
             document.getElementById('bal-dc').innerText = formatNum(wallet.dc);
-            document.getElementById('swap-usdt-bal').innerText = formatNum(wallet.usdt);
-            document.getElementById('swap-dcplus-bal').innerText = formatNum(wallet.dcPlus);
+            
+            if (window.updateSwapUI) window.updateSwapUI();
+            
             document.getElementById('stake-avail').innerText = formatNum(wallet.dcPlus) + ' DC+';
             document.getElementById('airdrop-dc-bal').innerText = formatNum(wallet.dc);
             
@@ -1064,8 +1162,45 @@
             document.getElementById('withdraw-amount').value = '';
         };
 
+        let swapDirection = 'USDT_TO_DCPLUS';
+
+        window.toggleSwapDirection = () => {
+            swapDirection = swapDirection === 'USDT_TO_DCPLUS' ? 'DCPLUS_TO_USDT' : 'USDT_TO_DCPLUS';
+            document.getElementById('swap-amount').value = '';
+            document.getElementById('swap-receive').value = '';
+            window.updateSwapUI();
+        };
+
+        window.updateSwapUI = () => {
+            const fromBal = document.getElementById('swap-from-bal');
+            const toBal = document.getElementById('swap-to-bal');
+            const fromToken = document.getElementById('swap-from-token');
+            const toToken = document.getElementById('swap-to-token');
+
+            if(!fromBal) return; // Guard against rendering before element loads
+
+            if (swapDirection === 'USDT_TO_DCPLUS') {
+                fromBal.innerText = formatNum(wallet.usdt);
+                toBal.innerText = formatNum(wallet.dcPlus);
+                fromToken.innerHTML = `<div class="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-xs"><i class="fa-solid fa-dollar-sign"></i></div><span class="font-bold text-white">USDT</span>`;
+                fromToken.className = "flex items-center space-x-2 bg-white/10 px-3 py-1.5 rounded-xl shrink-0";
+                toToken.innerHTML = `<div class="w-6 h-6 rounded-full bg-brand-cyan/30 flex items-center justify-center text-brand-cyan text-xs"><i class="fa-solid fa-gem"></i></div><span class="font-bold text-white">DC+</span>`;
+                toToken.className = "flex items-center space-x-2 bg-brand-cyan/20 px-3 py-1.5 rounded-xl shrink-0";
+                document.getElementById('swap-receive').className = "w-full bg-transparent text-3xl font-bold text-brand-cyan focus:outline-none placeholder-gray-600";
+            } else {
+                fromBal.innerText = formatNum(wallet.dcPlus);
+                toBal.innerText = formatNum(wallet.usdt);
+                fromToken.innerHTML = `<div class="w-6 h-6 rounded-full bg-brand-cyan/30 flex items-center justify-center text-brand-cyan text-xs"><i class="fa-solid fa-gem"></i></div><span class="font-bold text-white">DC+</span>`;
+                fromToken.className = "flex items-center space-x-2 bg-brand-cyan/20 px-3 py-1.5 rounded-xl shrink-0";
+                toToken.innerHTML = `<div class="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-xs"><i class="fa-solid fa-dollar-sign"></i></div><span class="font-bold text-white">USDT</span>`;
+                toToken.className = "flex items-center space-x-2 bg-white/10 px-3 py-1.5 rounded-xl shrink-0";
+                document.getElementById('swap-receive').className = "w-full bg-transparent text-3xl font-bold text-green-400 focus:outline-none placeholder-gray-600";
+            }
+        };
+
         window.setMaxSwap = () => {
-            document.getElementById('swap-amount').value = wallet.usdt;
+            const bal = swapDirection === 'USDT_TO_DCPLUS' ? wallet.usdt : wallet.dcPlus;
+            document.getElementById('swap-amount').value = bal;
             document.getElementById('swap-amount').dispatchEvent(new Event('input'));
         };
 
@@ -1075,16 +1210,26 @@
 
         document.getElementById('btn-execute-swap').addEventListener('click', async () => {
             const amt = Number(document.getElementById('swap-amount').value);
-            if(amt <= 0 || amt > wallet.usdt) return showToast("Invalid amount or insufficient USDT.", "error");
+            const bal = swapDirection === 'USDT_TO_DCPLUS' ? wallet.usdt : wallet.dcPlus;
+            const fromToken = swapDirection === 'USDT_TO_DCPLUS' ? 'USDT' : 'DC+';
+            const toToken = swapDirection === 'USDT_TO_DCPLUS' ? 'DC+' : 'USDT';
+
+            if(amt <= 0 || amt > bal) return showToast(`Invalid amount or insufficient ${fromToken}.`, "error");
             
             const btn = document.getElementById('btn-execute-swap');
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Swapping...`;
             
             setTimeout(async () => {
-                wallet.usdt -= amt;
-                wallet.dcPlus += amt;
+                if(swapDirection === 'USDT_TO_DCPLUS') {
+                    wallet.usdt -= amt;
+                    wallet.dcPlus += amt;
+                } else {
+                    wallet.dcPlus -= amt;
+                    wallet.usdt += amt;
+                }
+                
                 await saveWallet();
-                showToast(`Successfully swapped ${amt} USDT to DC+`);
+                showToast(`Successfully swapped ${formatNum(amt)} ${fromToken} to ${toToken}`);
                 document.getElementById('swap-amount').value = '';
                 document.getElementById('swap-receive').value = '';
                 btn.innerHTML = `Execute Swap`;
@@ -1102,9 +1247,26 @@
             document.getElementById('calc-yearly').innerText = '+' + formatNum(amt * 0.36) + ' DC+';
         });
 
-        document.getElementById('btn-submit-invest').addEventListener('click', async () => {
+        document.getElementById('btn-submit-invest').addEventListener('click', () => {
             const amt = Number(document.getElementById('invest-amount').value);
             if(amt < 10 || amt > wallet.dcPlus) return showToast("Min 10 DC+ required, or insufficient balance.", "error");
+            
+            window.pendingStakeAmount = amt;
+            
+            const modal = document.getElementById('stake-tc-modal');
+            const content = document.getElementById('stake-tc-content');
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            });
+        });
+
+        document.getElementById('btn-confirm-stake').addEventListener('click', async () => {
+            const amt = window.pendingStakeAmount;
+            const btn = document.getElementById('btn-confirm-stake');
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing...`;
             
             wallet.dcPlus -= amt;
             
@@ -1114,15 +1276,51 @@
                     await addDoc(collection(db, 'users', user.uid, 'stakes'), { amount: amt, date: Date.now() });
                 } catch(e) {
                     console.warn("Firestore add stake denied, using local state.");
-                    stakes.push({ amount: amt, date: Date.now() });
+                    stakes.push({ id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), amount: amt, date: Date.now() });
                 }
             } else {
-                stakes.push({ amount: amt, date: Date.now() }); // Local fallback
+                stakes.push({ id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), amount: amt, date: Date.now() }); // Local fallback
                 saveWallet(); 
             }
             updateStakesUI();
-            showToast(`Staked ${amt} DC+ successfully!`);
+            showToast(`Staked ${formatNum(amt)} DC+ successfully!`);
             document.getElementById('invest-amount').value = '';
+            closeStakeTCModal();
+            btn.innerHTML = `I Agree, Lock My Tokens`;
+        });
+
+        document.getElementById('btn-confirm-unstake').addEventListener('click', async () => {
+            const id = window.pendingUnstakeId;
+            const stake = stakes.find(s => s.id === id);
+            if(!stake) return closeUnstakeModal();
+            
+            const btn = document.getElementById('btn-confirm-unstake');
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing...`;
+            
+            const twoYearsMs = 2 * 365 * 24 * 60 * 60 * 1000;
+            const timeStaked = Date.now() - stake.date;
+            const penaltyRate = (timeStaked < twoYearsMs) ? 0.30 : 0;
+            const finalAmount = stake.amount - (stake.amount * penaltyRate);
+            
+            wallet.dcPlus += finalAmount;
+            
+            if(auth && user && db) {
+                try {
+                    await updateDoc(doc(db, 'users', user.uid), { wallet });
+                    await deleteDoc(doc(db, 'users', user.uid, 'stakes', id));
+                } catch(e) {
+                    stakes = stakes.filter(s => s.id !== id);
+                    await saveWallet(); // local fallback
+                }
+            } else {
+                stakes = stakes.filter(s => s.id !== id);
+                await saveWallet(); 
+            }
+            
+            updateStakesUI();
+            showToast(`Unstaked successfully! Received ${formatNum(finalAmount)} DC+`);
+            closeUnstakeModal();
+            btn.innerHTML = `Confirm Unstake`;
         });
 
         function updateStakesUI() {
@@ -1134,6 +1332,9 @@
             } else {
                 list.innerHTML = '';
                 stakes.sort((a,b)=>b.date - a.date).forEach(s => {
+                    // Inject local ID if missing
+                    if (!s.id) s.id = String(s.date + Math.random());
+                    
                     total += s.amount;
                     // Mock earned calc
                     const days = (Date.now() - s.date) / (1000 * 3600 * 24);
@@ -1141,14 +1342,19 @@
                     earned += sEarned;
                     
                     list.innerHTML += `
-                        <div class="bg-black/30 p-4 rounded-xl border border-white/5 flex justify-between items-center">
+                        <div class="bg-black/30 p-4 rounded-xl border border-white/5 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                             <div>
                                 <p class="text-white font-bold">${formatNum(s.amount)} DC+</p>
-                                <p class="text-xs text-gray-500">${new Date(s.date).toLocaleDateString()}</p>
+                                <p class="text-xs text-gray-500">Staked: ${new Date(s.date).toLocaleDateString()}</p>
                             </div>
-                            <div class="text-right">
-                                <span class="bg-brand-cyan/20 text-brand-cyan px-2 py-1 rounded text-xs font-bold">ACTIVE</span>
-                                <p class="text-green-400 text-sm mt-1">+${formatNum(sEarned)}</p>
+                            <div class="flex items-center justify-between md:justify-end md:space-x-4 w-full md:w-auto">
+                                <div class="text-left md:text-right">
+                                    <span class="bg-brand-cyan/20 text-brand-cyan px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">ACTIVE</span>
+                                    <p class="text-green-400 text-sm mt-1 font-medium">+${formatNum(sEarned)} DC+</p>
+                                </div>
+                                <button onclick="openUnstakeModal('${s.id}')" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-lg border border-red-500/20 transition-colors">
+                                    Unstake
+                                </button>
                             </div>
                         </div>
                     `;
