@@ -670,7 +670,54 @@
 
                 <div id="tab-referrals" class="tab-pane">
                     <h2 class="text-3xl font-bold text-white tracking-tight mb-2">Referral Network</h2>
-                    <p class="text-gray-400 mb-10">Invite friends and earn 5% bonus on their swaps.</p>
+                    <p class="text-gray-400 mb-8">Invite friends and earn 5% bonus on their swaps.</p>
+                    
+                    <!-- Referral Stats Grid -->
+                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="glass-panel rounded-2xl p-5 border border-white/5 relative overflow-hidden">
+                            <div class="absolute -right-6 -top-6 w-20 h-20 bg-brand-cyan/10 rounded-full blur-xl pointer-events-none"></div>
+                            <p class="text-xs text-gray-400 mb-1 uppercase tracking-wider font-semibold">Current Rank</p>
+                            <h3 id="ref-rank" class="text-xl font-bold text-brand-cyan flex items-center mt-2">
+                                <i class="fa-solid fa-medal mr-2"></i> <span>Bronze</span>
+                            </h3>
+                        </div>
+                        <div class="glass-panel rounded-2xl p-5 border border-white/5 relative overflow-hidden">
+                            <div class="absolute -right-6 -top-6 w-20 h-20 bg-brand-purple/10 rounded-full blur-xl pointer-events-none"></div>
+                            <p class="text-xs text-gray-400 mb-1 uppercase tracking-wider font-semibold">Total Referrals</p>
+                            <h3 id="ref-count" class="text-xl font-bold text-white flex items-center mt-2">
+                                <i class="fa-solid fa-users text-brand-purple mr-2"></i> <span>0</span>
+                            </h3>
+                        </div>
+                        <div class="glass-panel rounded-2xl p-5 border border-white/5 relative overflow-hidden">
+                            <div class="absolute -right-6 -top-6 w-20 h-20 bg-green-500/10 rounded-full blur-xl pointer-events-none"></div>
+                            <p class="text-xs text-gray-400 mb-1 uppercase tracking-wider font-semibold">Referral Income</p>
+                            <h3 id="ref-income" class="text-xl font-bold text-green-400 flex items-center mt-2">
+                                <i class="fa-solid fa-hand-holding-dollar mr-2"></i> <span>0.00</span>
+                            </h3>
+                        </div>
+                        <div class="glass-panel rounded-2xl p-5 border border-white/5 relative overflow-hidden">
+                            <div class="absolute -right-6 -top-6 w-20 h-20 bg-blue-500/10 rounded-full blur-xl pointer-events-none"></div>
+                            <p class="text-xs text-gray-400 mb-1 uppercase tracking-wider font-semibold">Downline Volume</p>
+                            <h3 id="ref-down-vol" class="text-xl font-bold text-white flex items-center mt-2">
+                                <i class="fa-solid fa-chart-network text-blue-400 mr-2"></i> <span>0.00</span>
+                            </h3>
+                        </div>
+                        <div class="glass-panel rounded-2xl p-5 border border-white/5 relative overflow-hidden">
+                            <div class="absolute -right-6 -top-6 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl pointer-events-none"></div>
+                            <p class="text-xs text-gray-400 mb-1 uppercase tracking-wider font-semibold">Downline Deposits</p>
+                            <h3 id="ref-down-dep" class="text-xl font-bold text-white flex items-center mt-2">
+                                <i class="fa-solid fa-arrow-down-to-line text-emerald-400 mr-2"></i> <span>0.00</span>
+                            </h3>
+                        </div>
+                        <div class="glass-panel rounded-2xl p-5 border border-white/5 relative overflow-hidden">
+                            <div class="absolute -right-6 -top-6 w-20 h-20 bg-red-500/10 rounded-full blur-xl pointer-events-none"></div>
+                            <p class="text-xs text-gray-400 mb-1 uppercase tracking-wider font-semibold">Downline Withdraws</p>
+                            <h3 id="ref-down-wd" class="text-xl font-bold text-white flex items-center mt-2">
+                                <i class="fa-solid fa-arrow-up-from-bracket text-red-400 mr-2"></i> <span>0.00</span>
+                            </h3>
+                        </div>
+                    </div>
+
                     <div class="glass-panel rounded-3xl p-8 border border-white/5">
                         <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Your Invite Link</h3>
                         <div class="flex flex-col sm:flex-row gap-4">
@@ -752,6 +799,7 @@
         let profile = {};
         let wallet = { usdt: 1000, dcPlus: 0, dc: 50 }; // Default mock start
         let stakes = [ { amount: 1000, date: Date.now() - (86400000 * 5) } ]; // Pre-populate with 1000 DC+ staked 5 days ago
+        let refStats = { rank: 'Gold Affiliate', count: 24, income: 450.75, downlineVolume: 32400.00, downlineDeposits: 21500.00, downlineWithdrawals: 5200.00 }; // Mock Referral Stats
         let completedTasks = [];
         let unsubWallet = null;
         let unsubStakes = null;
@@ -948,7 +996,19 @@
                 document.getElementById('profile-name-display').innerText = profile.name;
                 document.getElementById('profile-email-display').innerText = profile.email;
                 document.getElementById('ref-link-input').value = `https://crysto.app/join?ref=${profile.ref}`;
+                
+                // Update Referral Stats UI
+                updateReferralUI();
             }, 500);
+        }
+        
+        function updateReferralUI() {
+            document.querySelector('#ref-rank span').innerText = refStats.rank;
+            document.querySelector('#ref-count span').innerText = refStats.count;
+            document.querySelector('#ref-income span').innerText = formatNum(refStats.income) + ' USDT';
+            document.querySelector('#ref-down-vol span').innerText = formatNum(refStats.downlineVolume) + ' USDT';
+            document.querySelector('#ref-down-dep span').innerText = formatNum(refStats.downlineDeposits) + ' USDT';
+            document.querySelector('#ref-down-wd span').innerText = formatNum(refStats.downlineWithdrawals) + ' USDT';
         }
 
         async function saveWallet() {
