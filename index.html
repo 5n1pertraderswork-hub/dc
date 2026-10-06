@@ -6,6 +6,7 @@
     <title>Digital Crysto | Premium Crypto Ecosystem</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     
     <script>
         tailwind.config = {
@@ -127,6 +128,27 @@
         /* Toast */
         .toast { transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); transform: translateX(120%); opacity: 0; }
         .toast.show { transform: translateX(0); opacity: 1; }
+
+        /* New Game Styles */
+        .game-view { display: none; }
+        .game-view.active { display: flex; flex-direction: column; animation: slideUp 0.4s ease; }
+        
+        .chess-board { display: grid; grid-template-columns: repeat(8, 1fr); width: 100%; max-width: 400px; aspect-ratio: 1; border: 4px solid #111; }
+        .chess-square { display: flex; align-items: center; justify-content: center; font-size: 2rem; cursor: pointer; user-select: none; }
+        .chess-square.light { background-color: #f0d9b5; color: #000; }
+        .chess-square.dark { background-color: #b58863; color: #000; }
+        .chess-square.selected { outline: 3px solid #00f2fe; outline-offset: -3px; }
+        .chess-piece { cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        
+        .ludo-board { display: grid; grid-template-columns: repeat(15, 1fr); width: 100%; max-width: 400px; background: #fff; padding: 5px; gap: 2px; }
+        .ludo-cell { border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; position: relative; height: 30px; }
+        .ludo-safe { background: #f0f0f0; }
+        .ludo-token { width: 15px; height: 15px; border-radius: 50%; position: absolute; box-shadow: inset 0 -2px 5px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.5); z-index: 10; transition: all 0.3s; }
+        .ludo-token.p1 { background: #00f2fe; border: 2px solid #0088cc; }
+        .ludo-token.p2 { background: #8b5cf6; border: 2px solid #5a32a8; }
+        
+        .aviator-canvas { width: 100%; height: 250px; background: rgba(0,0,0,0.4); border-radius: 1rem; border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden; }
+        .aviator-plane { position: absolute; bottom: -10px; left: -10px; font-size: 2.5rem; transition: transform 0.05s linear; transform-origin: center; color: #00f2fe; text-shadow: 0 0 15px rgba(0,242,254,0.8); z-index: 20; }
     </style>
 </head>
 <body class="h-[100dvh] w-full overflow-hidden flex flex-col relative">
@@ -604,9 +626,9 @@
 
                 <div id="tab-games" class="tab-pane">
                     <h2 class="text-3xl font-bold text-white tracking-tight mb-2">Gaming Hub</h2>
-                    <p class="text-gray-400 mb-8">Test your luck to multiply your tokens. (House Edge Active)</p>
+                    <p class="text-gray-400 mb-8">Test your luck or challenge opponents to multiply your tokens.</p>
 
-                    <div class="mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 glass-panel px-6 py-4 rounded-2xl border border-white/10">
+                    <div class="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 glass-panel px-6 py-4 rounded-2xl border border-white/10">
                         <div class="flex items-center space-x-4">
                             <label class="text-gray-400 text-sm font-medium uppercase tracking-wider">Betting Asset:</label>
                             <select id="game-token-select" class="glass-input text-white text-sm font-bold rounded-lg px-4 py-2 focus:outline-none focus:border-brand-cyan" onchange="window.updateGameBalanceUI()">
@@ -620,14 +642,24 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Game Navigation -->
+                    <div class="flex space-x-3 overflow-x-auto pb-4 mb-6 custom-scrollbar w-full">
+                        <button onclick="switchGameView('coinflip')" id="btn-view-coinflip" class="game-nav flex-shrink-0 px-4 py-2 rounded-xl bg-brand-cyan/20 text-brand-cyan border border-brand-cyan/30 font-bold text-sm transition-all">🪙 Coin Flip</button>
+                        <button onclick="switchGameView('roulette')" id="btn-view-roulette" class="game-nav flex-shrink-0 px-4 py-2 rounded-xl bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10 font-bold text-sm transition-all">🎡 Roulette</button>
+                        <button onclick="switchGameView('aviator')" id="btn-view-aviator" class="game-nav flex-shrink-0 px-4 py-2 rounded-xl bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10 font-bold text-sm transition-all">🚀 Aviator</button>
+                        <button onclick="switchGameView('dice')" id="btn-view-dice" class="game-nav flex-shrink-0 px-4 py-2 rounded-xl bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10 font-bold text-sm transition-all">🎲 Dice</button>
+                        <button onclick="switchGameView('multiplier')" id="btn-view-multiplier" class="game-nav flex-shrink-0 px-4 py-2 rounded-xl bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10 font-bold text-sm transition-all">✖️ Multiplier</button>
+                        <button onclick="switchGameView('chess')" id="btn-view-chess" class="game-nav flex-shrink-0 px-4 py-2 rounded-xl bg-brand-purple/20 text-brand-purple border border-brand-purple/30 hover:bg-brand-purple/30 font-bold text-sm transition-all">♟️ Chess (PVP)</button>
+                        <button onclick="switchGameView('ludo')" id="btn-view-ludo" class="game-nav flex-shrink-0 px-4 py-2 rounded-xl bg-brand-purple/20 text-brand-purple border border-brand-purple/30 hover:bg-brand-purple/30 font-bold text-sm transition-all">🎲 Ludo (PVP)</button>
+                    </div>
+
+                    <div class="w-full max-w-4xl mx-auto">
                         <!-- Coin Flip Game -->
-                        <div class="glass-panel rounded-[2rem] p-8 flex flex-col items-center border border-brand-cyan/20 relative overflow-hidden group hover:border-brand-cyan/50 transition-colors" style="touch-action: pan-y;">
+                        <div id="view-coinflip" class="game-view active glass-panel rounded-[2rem] p-8 items-center border border-brand-cyan/20 relative overflow-hidden group hover:border-brand-cyan/50 transition-colors" style="touch-action: pan-y;">
                             <div class="absolute inset-0 bg-brand-cyan/5 pointer-events-none group-hover:bg-brand-cyan/10 transition-colors"></div>
                             <h3 class="text-xl font-bold text-white mb-2 relative z-10">Quantum Coin Flip</h3>
                             <p class="text-xs text-gray-400 mb-6 relative z-10 text-center">Predict Heads or Tails.</p>
 
-                            <!-- 3D Coin -->
                             <div class="coin-container my-6 relative z-10">
                                 <div id="coin-obj" class="coin relative">
                                     <div class="coin-face coin-front text-white shadow-[0_0_30px_rgba(0,242,254,0.6)]">HEADS</div>
@@ -635,25 +667,21 @@
                                 </div>
                             </div>
 
-                            <div class="w-full space-y-4 relative z-10 mt-6">
+                            <div class="w-full max-w-sm space-y-4 relative z-10 mt-6">
                                 <div>
                                     <label class="block text-xs font-medium text-gray-400 mb-1 text-center">Wager Amount</label>
                                     <input type="number" id="game-wager" value="10" min="1" class="w-full glass-input rounded-xl px-4 py-2.5 text-center text-xl text-white font-bold">
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
-                                    <button onclick="playGame('coinflip', 'heads')" class="py-3 rounded-xl font-bold text-white bg-gradient-to-r from-brand-cyan to-blue-500 hover:shadow-[0_0_15px_rgba(0,242,254,0.5)] transition-all text-sm">
-                                        HEADS
-                                    </button>
-                                    <button onclick="playGame('coinflip', 'tails')" class="py-3 rounded-xl font-bold text-white bg-gradient-to-r from-brand-purple to-pink-500 hover:shadow-[0_0_15px_rgba(139,92,246,0.5)] transition-all text-sm">
-                                        TAILS
-                                    </button>
+                                    <button onclick="playGame('coinflip', 'heads')" class="py-3 rounded-xl font-bold text-white bg-gradient-to-r from-brand-cyan to-blue-500 hover:shadow-[0_0_15px_rgba(0,242,254,0.5)] transition-all text-sm">HEADS</button>
+                                    <button onclick="playGame('coinflip', 'tails')" class="py-3 rounded-xl font-bold text-white bg-gradient-to-r from-brand-purple to-pink-500 hover:shadow-[0_0_15px_rgba(139,92,246,0.5)] transition-all text-sm">TAILS</button>
                                 </div>
                                 <p id="coin-result" class="text-center h-5 font-bold text-sm mt-2 transition-all duration-300"></p>
                             </div>
                         </div>
 
-                        <!-- Number Predictor Game -->
-                        <div class="glass-panel rounded-[2rem] p-8 flex flex-col items-center border border-brand-purple/20 relative overflow-hidden group hover:border-brand-purple/50 transition-colors" style="touch-action: pan-y;">
+                        <!-- Roulette Predictor Game -->
+                        <div id="view-roulette" class="game-view glass-panel rounded-[2rem] p-8 items-center border border-brand-purple/20 relative overflow-hidden group hover:border-brand-purple/50 transition-colors" style="touch-action: pan-y;">
                             <div class="absolute inset-0 bg-brand-purple/5 pointer-events-none group-hover:bg-brand-purple/10 transition-colors"></div>
                             <h3 class="text-xl font-bold text-white mb-2 relative z-10">Roulette Predictor</h3>
                             <p class="text-xs text-gray-400 mb-6 relative z-10 text-center">Predict the exact number (1-10).</p>
@@ -662,7 +690,7 @@
                                 <span id="roulette-number" class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-brand-purple to-pink-500">?</span>
                             </div>
 
-                            <div class="w-full space-y-4 relative z-10">
+                            <div class="w-full max-w-sm space-y-4 relative z-10">
                                 <div>
                                     <label class="block text-xs font-medium text-gray-400 mb-1 text-center">Wager Amount</label>
                                     <input type="number" id="roulette-wager" value="10" min="1" class="w-full glass-input rounded-xl px-4 py-2.5 text-center text-xl text-white font-bold">
@@ -671,12 +699,152 @@
                                     <label class="block text-xs font-medium text-gray-400 mb-1 text-center">Your Number (1-10)</label>
                                     <input type="number" id="roulette-guess" value="7" min="1" max="10" class="w-full glass-input rounded-xl px-4 py-2.5 text-center text-xl text-brand-cyan font-bold border-brand-cyan/30">
                                 </div>
-                                <button onclick="playGame('roulette', null)" class="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-brand-purple to-pink-500 hover:shadow-[0_0_15px_rgba(139,92,246,0.5)] transition-all text-sm mt-2">
-                                    Spin Wheel
-                                </button>
+                                <button onclick="playGame('roulette', null)" class="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-brand-purple to-pink-500 hover:shadow-[0_0_15px_rgba(139,92,246,0.5)] transition-all text-sm mt-2">Spin Wheel</button>
                                 <p id="roulette-result" class="text-center h-5 font-bold text-sm mt-2 transition-all duration-300"></p>
                             </div>
                         </div>
+
+                        <!-- Aviator Game -->
+                        <div id="view-aviator" class="game-view glass-panel rounded-[2rem] p-8 items-center border border-red-500/20 relative overflow-hidden" style="touch-action: pan-y;">
+                            <h3 class="text-xl font-bold text-white mb-2 relative z-10">Aviator Crash</h3>
+                            <p class="text-xs text-gray-400 mb-6 relative z-10 text-center">Cash out before the crash!</p>
+                            
+                            <div class="aviator-canvas flex items-center justify-center mb-6">
+                                <div id="aviator-multiplier" class="text-5xl font-black text-white z-10 font-mono">1.00x</div>
+                                <div id="aviator-plane" class="aviator-plane"><i class="fa-solid fa-plane-up"></i></div>
+                                <svg class="absolute bottom-0 left-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
+                                    <path id="aviator-path" d="M0,250 Q0,250 0,250" fill="none" stroke="#00f2fe" stroke-width="4" stroke-opacity="0.5"/>
+                                </svg>
+                            </div>
+
+                            <div class="w-full max-w-sm space-y-4 relative z-10">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-400 mb-1 text-center">Wager Amount</label>
+                                    <input type="number" id="aviator-wager" value="10" min="1" class="w-full glass-input rounded-xl px-4 py-2.5 text-center text-xl text-white font-bold">
+                                </div>
+                                <button id="btn-aviator" onclick="playAviator()" class="w-full py-4 rounded-xl font-bold text-brand-dark bg-gradient-to-r from-brand-cyan to-blue-500 hover:shadow-[0_0_15px_rgba(0,242,254,0.5)] transition-all text-lg">
+                                    Bet & Start
+                                </button>
+                                <p id="aviator-result" class="text-center h-5 font-bold text-sm mt-2 transition-all duration-300"></p>
+                            </div>
+                        </div>
+
+                        <!-- Dice Game -->
+                        <div id="view-dice" class="game-view glass-panel rounded-[2rem] p-8 items-center border border-green-500/20 relative overflow-hidden" style="touch-action: pan-y;">
+                             <h3 class="text-xl font-bold text-white mb-2 relative z-10">Crypto Dice</h3>
+                             <p class="text-xs text-gray-400 mb-6 relative z-10 text-center">Roll under the target.</p>
+                             
+                             <div class="w-full max-w-sm mb-8">
+                                <div class="bg-black/40 rounded-2xl p-6 text-center border border-white/5 mb-6">
+                                    <span id="dice-result-display" class="text-6xl font-black text-white font-mono">--</span>
+                                </div>
+                                <label class="flex justify-between text-xs text-gray-400 mb-2"><span>Roll Under:</span><span id="dice-target-display" class="text-brand-cyan font-bold">50</span></label>
+                                <input type="range" id="dice-target" min="5" max="95" value="50" class="w-full mb-4 accent-brand-cyan cursor-pointer" oninput="document.getElementById('dice-target-display').innerText = this.value; document.getElementById('dice-multiplier').innerText = (99 / this.value).toFixed(2) + 'x'; document.getElementById('dice-chance').innerText = this.value + '%';">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-400">Multiplier: <span id="dice-multiplier" class="text-white font-bold">1.98x</span></span>
+                                    <span class="text-gray-400">Win Chance: <span id="dice-chance" class="text-white font-bold">50%</span></span>
+                                </div>
+                             </div>
+
+                             <div class="w-full max-w-sm space-y-4 relative z-10">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-400 mb-1 text-center">Wager Amount</label>
+                                    <input type="number" id="dice-wager" value="10" min="1" class="w-full glass-input rounded-xl px-4 py-2.5 text-center text-xl text-white font-bold">
+                                </div>
+                                <button onclick="playDice()" class="w-full py-4 rounded-xl font-bold text-brand-dark bg-gradient-to-r from-green-400 to-emerald-500 hover:shadow-[0_0_15px_rgba(52,211,153,0.5)] transition-all text-lg">
+                                    Roll Dice
+                                </button>
+                                <p id="dice-result" class="text-center h-5 font-bold text-sm mt-2 transition-all duration-300"></p>
+                             </div>
+                        </div>
+
+                        <!-- Multiplier Game -->
+                        <div id="view-multiplier" class="game-view glass-panel rounded-[2rem] p-8 items-center border border-yellow-500/20 relative overflow-hidden" style="touch-action: pan-y;">
+                             <h3 class="text-xl font-bold text-white mb-2 relative z-10">Target Multiplier</h3>
+                             <p class="text-xs text-gray-400 mb-6 relative z-10 text-center">Hit your custom multiplier.</p>
+                             
+                             <div class="w-full max-w-sm space-y-6 relative z-10">
+                                <div class="bg-black/40 rounded-2xl p-6 text-center border border-white/5">
+                                    <span id="mult-result-display" class="text-5xl font-black text-gray-500 font-mono">0.00x</span>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-400 mb-1 text-center">Target Multiplier (e.g., 2.5)</label>
+                                    <input type="number" id="mult-target" value="2.0" step="0.1" min="1.1" class="w-full glass-input rounded-xl px-4 py-2.5 text-center text-2xl text-yellow-400 font-bold">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-400 mb-1 text-center">Wager Amount</label>
+                                    <input type="number" id="mult-wager" value="10" min="1" class="w-full glass-input rounded-xl px-4 py-2.5 text-center text-xl text-white font-bold">
+                                </div>
+                                <button onclick="playMultiplier()" class="w-full py-4 rounded-xl font-bold text-brand-dark bg-gradient-to-r from-yellow-400 to-orange-500 hover:shadow-[0_0_15px_rgba(250,204,21,0.5)] transition-all text-lg">
+                                    Spin & Win
+                                </button>
+                                <p id="mult-result" class="text-center h-5 font-bold text-sm mt-2 transition-all duration-300"></p>
+                             </div>
+                        </div>
+
+                        <!-- Chess PVP -->
+                        <div id="view-chess" class="game-view glass-panel rounded-[2rem] p-4 md:p-8 items-center border border-brand-purple/40 relative overflow-hidden" style="touch-action: pan-y;">
+                             <h3 class="text-xl font-bold text-white mb-2 relative z-10">PVP Grandmaster Chess</h3>
+                             <p class="text-xs text-brand-cyan mb-6 relative z-10 text-center">Multiplayer: Both players bet. Winner takes 80% of Pot (1.6x Bet), Company takes 20%.</p>
+                             
+                             <div id="chess-lobby" class="w-full max-w-sm space-y-4 text-center mt-4">
+                                 <div>
+                                    <label class="block text-sm font-medium text-gray-400 mb-2 text-center">Enter PVP Bet Amount</label>
+                                    <input type="number" id="chess-wager" value="100" min="10" class="w-full glass-input rounded-xl px-4 py-3 text-center text-2xl text-white font-bold">
+                                 </div>
+                                 <button onclick="startChessMatchmaking()" id="btn-chess-match" class="w-full py-4 rounded-xl font-bold text-white bg-brand-purple hover:bg-purple-500 hover:shadow-[0_0_15px_rgba(139,92,246,0.5)] transition-all text-lg">
+                                     Find Match
+                                 </button>
+                                 <p id="chess-lobby-status" class="text-brand-cyan animate-pulse h-5 mt-2"></p>
+                             </div>
+
+                             <div id="chess-game-area" class="hidden w-full flex-col items-center mt-4">
+                                 <div class="flex justify-between w-full max-w-[400px] mb-3 px-2">
+                                     <div class="flex items-center space-x-2"><div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-xs text-white border border-red-500/30">OPP</div><span class="text-sm font-bold text-white" id="chess-opp-name">Player_2</span></div>
+                                     <div class="text-brand-cyan font-bold text-sm bg-brand-cyan/10 px-3 py-1 rounded-lg border border-brand-cyan/20">POT: <span id="chess-pot">0</span></div>
+                                 </div>
+                                 <div id="chess-board-ui" class="chess-board mb-4 shadow-2xl"></div>
+                                 <div class="flex justify-between w-full max-w-[400px] mt-2 px-2">
+                                     <div class="flex items-center space-x-2"><div class="w-8 h-8 rounded-full bg-brand-cyan/20 flex items-center justify-center text-xs text-white border border-brand-cyan/30">YOU</div><span class="text-sm font-bold text-white">You</span></div>
+                                 </div>
+                                 <p id="chess-status" class="text-yellow-400 font-bold mt-4 h-5 text-lg"></p>
+                             </div>
+                        </div>
+
+                        <!-- Ludo PVP -->
+                        <div id="view-ludo" class="game-view glass-panel rounded-[2rem] p-4 md:p-8 items-center border border-pink-500/40 relative overflow-hidden" style="touch-action: pan-y;">
+                             <h3 class="text-xl font-bold text-white mb-2 relative z-10">PVP Ludo Race (1v1)</h3>
+                             <p class="text-xs text-brand-cyan mb-6 relative z-10 text-center">Multiplayer: First to the end wins! Winner takes 80% of Pot, Company takes 20%.</p>
+                             
+                             <div id="ludo-lobby" class="w-full max-w-sm space-y-4 text-center mt-4">
+                                 <div>
+                                    <label class="block text-sm font-medium text-gray-400 mb-2 text-center">Enter PVP Bet Amount</label>
+                                    <input type="number" id="ludo-wager" value="100" min="10" class="w-full glass-input rounded-xl px-4 py-3 text-center text-2xl text-white font-bold">
+                                 </div>
+                                 <button onclick="startLudoMatchmaking()" id="btn-ludo-match" class="w-full py-4 rounded-xl font-bold text-white bg-pink-500 hover:bg-pink-400 hover:shadow-[0_0_15px_rgba(236,72,153,0.5)] transition-all text-lg">
+                                     Find Match
+                                 </button>
+                                 <p id="ludo-lobby-status" class="text-brand-cyan animate-pulse h-5 mt-2"></p>
+                             </div>
+
+                             <div id="ludo-game-area" class="hidden w-full flex-col items-center mt-4">
+                                 <div class="flex justify-between w-full max-w-[400px] mb-4 px-2">
+                                     <span class="text-sm font-bold text-brand-cyan">You (Blue)</span>
+                                     <span class="text-sm font-bold text-brand-purple" id="ludo-opp-name">Opp (Purple)</span>
+                                 </div>
+                                 
+                                 <div id="ludo-board-ui" class="ludo-board mb-8 rounded shadow-lg overflow-hidden border border-white/20">
+                                     <!-- Generated dynamically -->
+                                 </div>
+
+                                 <div class="flex space-x-6 items-center">
+                                     <button onclick="rollLudoDice()" id="btn-ludo-roll" class="px-8 py-4 bg-brand-cyan text-brand-dark font-bold rounded-xl shadow-[0_0_15px_rgba(0,242,254,0.4)] transition-all active:scale-95 text-lg">Roll Dice</button>
+                                     <div id="ludo-dice-result" class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center text-3xl font-black text-white border-2 border-white/20 shadow-inner">?</div>
+                                 </div>
+                                 <p id="ludo-status" class="text-yellow-400 font-bold mt-6 h-5 text-lg"></p>
+                             </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -1461,57 +1629,63 @@
             }
         };
 
+        window.switchGameView = (game) => {
+            document.querySelectorAll('.game-view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.game-nav').forEach(el => {
+                el.classList.remove('bg-brand-cyan/20', 'text-brand-cyan', 'border-brand-cyan/30', 'bg-brand-purple/20', 'text-brand-purple', 'border-brand-purple/30');
+                el.classList.add('bg-white/5', 'text-gray-400', 'border-white/10');
+            });
+            
+            const target = document.getElementById('view-' + game);
+            const btn = document.getElementById('btn-view-' + game);
+            target.classList.add('active');
+            
+            if(game === 'chess' || game === 'ludo') {
+                btn.classList.remove('bg-white/5', 'text-gray-400', 'border-white/10');
+                btn.classList.add('bg-brand-purple/20', 'text-brand-purple', 'border-brand-purple/30');
+            } else {
+                btn.classList.remove('bg-white/5', 'text-gray-400', 'border-white/10');
+                btn.classList.add('bg-brand-cyan/20', 'text-brand-cyan', 'border-brand-cyan/30');
+            }
+        };
+
         // Core 99.99% Rigged Logic
         function getRiggedResult(userGuess, allOptions, wager) {
             let isWin = false;
-            
-            // Requires at least 15 losses. Even then, extremely low chance (1%) to win.
-            if (window.consecutiveLosses >= 15) {
-                if (Math.random() < 0.01) {
-                    isWin = true;
-                }
-            }
+            if (window.consecutiveLosses >= 15 && Math.random() < 0.01) isWin = true;
 
             let result, payout;
             
             if (isWin) {
-                result = userGuess; // Let them win
-                payout = wager * 1.1; // Only 10% profit on win instead of 2x
-                window.consecutiveLosses = 0; // Reset losses after a rare win
+                result = userGuess; 
+                payout = wager * 1.1; // Only 10% profit on rare win
+                window.consecutiveLosses = 0; 
             } else {
                 window.consecutiveLosses++;
-                // Force a losing result
                 const losingOptions = allOptions.filter(opt => String(opt) !== String(userGuess));
-                result = losingOptions[Math.floor(Math.random() * losingOptions.length)];
+                result = losingOptions.length > 0 ? losingOptions[Math.floor(Math.random() * losingOptions.length)] : null;
                 payout = 0;
             }
-            
             return { result, payout, isWin };
         }
 
         window.playGame = async (gameType, param) => {
             if(isPlaying) return;
-            
             const token = document.getElementById('game-token-select').value;
             const wagerInputId = gameType === 'coinflip' ? 'game-wager' : 'roulette-wager';
             const wager = Number(document.getElementById(wagerInputId).value);
             
             const currentBal = token === 'dcPlus' ? wallet.dcPlus : wallet.dc;
-            if(wager <= 0 || wager > currentBal) {
-                return showToast(`Invalid wager or insufficient ${token === 'dcPlus' ? 'DC+' : 'DC'}.`, "error");
-            }
+            if(wager <= 0 || wager > currentBal) return showToast(`Invalid wager or insufficient ${token === 'dcPlus' ? 'DC+' : 'DC'}.`, "error");
 
             isPlaying = true;
-            
-            // Deduct immediately
-            if(token === 'dcPlus') wallet.dcPlus -= wager;
-            else wallet.dc -= wager;
+            if(token === 'dcPlus') wallet.dcPlus -= wager; else wallet.dc -= wager;
             updateUIBalances(); 
 
             let userGuess, allOptions, resTextEl;
 
             if (gameType === 'coinflip') {
-                userGuess = param; // 'heads' or 'tails'
+                userGuess = param; 
                 allOptions = ['heads', 'tails'];
                 resTextEl = document.getElementById('coin-result');
                 resTextEl.innerText = 'Flipping...';
@@ -1519,21 +1693,18 @@
                 
                 const coin = document.getElementById('coin-obj');
                 coin.className = 'coin relative';
-                void coin.offsetWidth; // Reflow
+                void coin.offsetWidth; 
                 
                 const rigged = getRiggedResult(userGuess, allOptions, wager);
                 coin.classList.add(rigged.result === 'heads' ? 'flipping-heads' : 'flipping-tails');
                 
-                setTimeout(async () => {
-                    handleGameOutcome(rigged, token, wager, resTextEl);
-                }, 2000);
+                setTimeout(async () => handleGameOutcome(rigged, token, wager, resTextEl), 2000);
 
             } else if (gameType === 'roulette') {
                 userGuess = document.getElementById('roulette-guess').value;
                 allOptions = ['1','2','3','4','5','6','7','8','9','10'];
                 if(!allOptions.includes(String(userGuess))) {
                     isPlaying = false;
-                    // Refund if invalid
                     if(token === 'dcPlus') wallet.dcPlus += wager; else wallet.dc += wager;
                     updateUIBalances();
                     return showToast("Please enter a number between 1 and 10.", "error");
@@ -1544,7 +1715,6 @@
                 resTextEl.innerText = 'Spinning...';
                 resTextEl.className = "text-center h-5 font-bold text-sm mt-2 text-gray-400";
                 
-                // Spin animation effect
                 let spinCount = 0;
                 const spinInterval = setInterval(() => {
                     displayEl.innerText = Math.floor(Math.random() * 10) + 1;
@@ -1558,6 +1728,428 @@
                 }, 100);
             }
         };
+
+        // NEW GAMES LOGIC 
+        let aviatorInterval, aviatorMultiplier = 1.00, aviatorWager = 0, aviatorToken = 'dc', isAviatorRunning = false;
+        
+        window.playAviator = () => {
+            if(isAviatorRunning) return cashOutAviator();
+            if(isPlaying) return;
+            
+            const token = document.getElementById('game-token-select').value;
+            const wager = Number(document.getElementById('aviator-wager').value);
+            const currentBal = token === 'dcPlus' ? wallet.dcPlus : wallet.dc;
+            if(wager <= 0 || wager > currentBal) return showToast("Invalid wager or insufficient balance.", "error");
+
+            isPlaying = true; isAviatorRunning = true;
+            aviatorWager = wager; aviatorToken = token;
+            
+            if(token === 'dcPlus') wallet.dcPlus -= wager; else wallet.dc -= wager;
+            updateUIBalances();
+
+            document.getElementById('btn-aviator').innerText = "CASH OUT";
+            document.getElementById('btn-aviator').className = "w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-orange-400 to-red-500 shadow-[0_0_15px_rgba(249,115,22,0.5)] transition-all text-lg animate-pulse";
+            document.getElementById('aviator-result').innerText = "";
+            
+            const rigged = getRiggedResult('aviator', ['crash'], wager);
+            const crashPoint = rigged.isWin ? (1.1 + Math.random() * 0.9) : (1.00 + Math.random() * 0.05);
+
+            aviatorMultiplier = 1.00;
+            let ticks = 0;
+            const plane = document.getElementById('aviator-plane');
+            const path = document.getElementById('aviator-path');
+            
+            aviatorInterval = setInterval(() => {
+                aviatorMultiplier += 0.01 + (ticks * 0.001);
+                ticks++;
+                document.getElementById('aviator-multiplier').innerText = aviatorMultiplier.toFixed(2) + "x";
+                
+                const x = Math.min(ticks * 3, 280);
+                const y = Math.min(ticks * 2, 180);
+                plane.style.transform = `translate(${x}px, -${y}px) rotate(-15deg)`;
+                path.setAttribute('d', `M0,250 Q${x/2},${250 - y/2} ${x},${250 - y}`);
+
+                if(aviatorMultiplier >= crashPoint) crashAviator();
+            }, 50);
+        };
+
+        function crashAviator() {
+            clearInterval(aviatorInterval);
+            isAviatorRunning = false; isPlaying = false;
+            document.getElementById('aviator-multiplier').classList.add('text-red-500');
+            document.getElementById('aviator-result').innerText = `Crashed at ${aviatorMultiplier.toFixed(2)}x. You lost.`;
+            document.getElementById('aviator-result').className = "text-center h-5 font-bold text-sm mt-2 text-red-400";
+            resetAviatorBtn(); saveWallet();
+        }
+
+        function cashOutAviator() {
+            clearInterval(aviatorInterval);
+            isAviatorRunning = false; isPlaying = false;
+            
+            const payout = aviatorWager * aviatorMultiplier;
+            if(aviatorToken === 'dcPlus') wallet.dcPlus += payout; else wallet.dc += payout;
+            
+            document.getElementById('aviator-multiplier').classList.add('text-green-400');
+            document.getElementById('aviator-result').innerText = `Cashed out! +${formatNum(payout - aviatorWager)} ${aviatorToken === 'dcPlus' ? 'DC+' : 'DC'}`;
+            document.getElementById('aviator-result').className = "text-center h-5 font-bold text-sm mt-2 text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.8)]";
+            
+            window.consecutiveLosses = 0; 
+            resetAviatorBtn(); saveWallet(); updateUIBalances();
+        }
+
+        function resetAviatorBtn() {
+            setTimeout(() => {
+                document.getElementById('btn-aviator').innerText = "Bet & Start";
+                document.getElementById('btn-aviator').className = "w-full py-4 rounded-xl font-bold text-brand-dark bg-gradient-to-r from-brand-cyan to-blue-500 hover:shadow-[0_0_15px_rgba(0,242,254,0.5)] transition-all text-lg";
+                document.getElementById('aviator-multiplier').classList.remove('text-red-500', 'text-green-400');
+                document.getElementById('aviator-multiplier').innerText = "1.00x";
+                document.getElementById('aviator-plane').style.transform = `translate(0px, 0px) rotate(0deg)`;
+                document.getElementById('aviator-path').setAttribute('d', `M0,250 Q0,250 0,250`);
+            }, 3000);
+        }
+
+        window.playDice = async () => {
+            if(isPlaying) return;
+            const token = document.getElementById('game-token-select').value;
+            const wager = Number(document.getElementById('dice-wager').value);
+            const target = Number(document.getElementById('dice-target').value);
+            
+            const currentBal = token === 'dcPlus' ? wallet.dcPlus : wallet.dc;
+            if(wager <= 0 || wager > currentBal) return showToast("Invalid wager or insufficient balance.", "error");
+
+            isPlaying = true;
+            if(token === 'dcPlus') wallet.dcPlus -= wager; else wallet.dc -= wager;
+            updateUIBalances();
+            
+            const display = document.getElementById('dice-result-display');
+            let rolls = 0;
+            const anim = setInterval(() => {
+                display.innerText = Math.floor(Math.random() * 100);
+                rolls++;
+                if(rolls > 15) {
+                    clearInterval(anim);
+                    const rigged = getRiggedResult('dice', ['win', 'loss'], wager);
+                    
+                    let finalRoll;
+                    if(rigged.isWin) {
+                        finalRoll = Math.floor(Math.random() * target); 
+                    } else {
+                        finalRoll = Math.floor(Math.random() * (100 - target)) + target;
+                    }
+                    display.innerText = finalRoll;
+                    
+                    if(finalRoll < target) {
+                        const actualPayout = rigged.isWin ? wager * 1.1 : wager * (99 / target); 
+                        if(token === 'dcPlus') wallet.dcPlus += actualPayout; else wallet.dc += actualPayout;
+                        document.getElementById('dice-result').innerText = `Rolled ${finalRoll}. Won +${formatNum(actualPayout - wager)}!`;
+                        document.getElementById('dice-result').className = "text-center h-5 font-bold text-sm mt-2 text-green-400";
+                    } else {
+                        document.getElementById('dice-result').innerText = `Rolled ${finalRoll}. You lost.`;
+                        document.getElementById('dice-result').className = "text-center h-5 font-bold text-sm mt-2 text-red-400";
+                    }
+                    saveWallet(); updateUIBalances(); isPlaying = false;
+                }
+            }, 50);
+        };
+
+        window.playMultiplier = async () => {
+             if(isPlaying) return;
+             const token = document.getElementById('game-token-select').value;
+             const wager = Number(document.getElementById('mult-wager').value);
+             const target = Number(document.getElementById('mult-target').value);
+             
+             const currentBal = token === 'dcPlus' ? wallet.dcPlus : wallet.dc;
+             if(wager <= 0 || wager > currentBal || target <= 1.0) return showToast("Invalid inputs or insufficient balance.", "error");
+
+             isPlaying = true;
+             if(token === 'dcPlus') wallet.dcPlus -= wager; else wallet.dc -= wager;
+             updateUIBalances();
+             
+             const display = document.getElementById('mult-result-display');
+             let ticks = 0;
+             const anim = setInterval(() => {
+                 display.innerText = (1 + (Math.random() * 5)).toFixed(2) + "x";
+                 ticks++;
+                 if(ticks > 20) {
+                     clearInterval(anim);
+                     const rigged = getRiggedResult('mult', ['win', 'loss'], wager);
+                     let finalMult;
+                     if(rigged.isWin) {
+                         finalMult = target + (Math.random() * 0.5); 
+                     } else {
+                         finalMult = 1.00 + (Math.random() * (Math.max(0.1, target - 1.1))); 
+                     }
+                     
+                     display.innerText = finalMult.toFixed(2) + "x";
+                     
+                     if(finalMult >= target) {
+                         const actualPayout = rigged.isWin ? wager * 1.1 : wager * target; 
+                         if(token === 'dcPlus') wallet.dcPlus += actualPayout; else wallet.dc += actualPayout;
+                         document.getElementById('mult-result').innerText = `Hit ${finalMult.toFixed(2)}x! Won!`;
+                         document.getElementById('mult-result').className = "text-center h-5 font-bold text-sm mt-2 text-green-400";
+                     } else {
+                         document.getElementById('mult-result').innerText = `Hit ${finalMult.toFixed(2)}x. Lost.`;
+                         document.getElementById('mult-result').className = "text-center h-5 font-bold text-sm mt-2 text-red-400";
+                     }
+                     saveWallet(); updateUIBalances(); isPlaying = false;
+                 }
+             }, 50);
+        };
+
+        // PVP CHESS LOGIC
+        let chessInstance = null, selectedSquare = null, chessWager = 0, chessToken = 'dc';
+
+        window.startChessMatchmaking = () => {
+            chessToken = document.getElementById('game-token-select').value;
+            chessWager = Number(document.getElementById('chess-wager').value);
+            const currentBal = chessToken === 'dcPlus' ? wallet.dcPlus : wallet.dc;
+            if(chessWager < 10 || chessWager > currentBal) return showToast("Invalid wager or insufficient balance.", "error");
+            
+            document.getElementById('btn-chess-match').disabled = true;
+            document.getElementById('chess-lobby-status').innerText = "Finding opponent...";
+            
+            setTimeout(() => {
+                if(chessToken === 'dcPlus') wallet.dcPlus -= chessWager; else wallet.dc -= chessWager;
+                updateUIBalances(); saveWallet();
+
+                const names = ['CryptoWhale', 'SatoshiNinja', 'Web3Master', 'YieldFarmer99'];
+                document.getElementById('chess-opp-name').innerText = names[Math.floor(Math.random()*names.length)];
+                document.getElementById('chess-pot').innerText = (chessWager * 2) + ` ${chessToken === 'dcPlus' ? 'DC+' : 'DC'}`;
+                
+                document.getElementById('chess-lobby').classList.add('hidden');
+                document.getElementById('chess-game-area').classList.remove('hidden');
+                document.getElementById('chess-game-area').classList.add('flex');
+                
+                initChess();
+            }, 2000);
+        };
+
+        function initChess() {
+            if(typeof Chess !== 'function') {
+                document.getElementById('chess-board-ui').innerHTML = "<p class='text-white p-4'>Chess engine loading failed.</p>";
+                return;
+            }
+            chessInstance = new Chess();
+            renderChessBoard();
+            document.getElementById('chess-status').innerText = "Your Turn (White)";
+        }
+
+        const piecesMap = {
+            'p': '♟', 'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚',
+            'P': '♙', 'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔'
+        };
+
+        function renderChessBoard() {
+            const boardEl = document.getElementById('chess-board-ui');
+            boardEl.innerHTML = '';
+            const board = chessInstance.board();
+            
+            for(let r = 0; r < 8; r++) {
+                for(let c = 0; c < 8; c++) {
+                    const square = String.fromCharCode(97 + c) + (8 - r);
+                    const cell = document.createElement('div');
+                    cell.className = `chess-square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
+                    cell.dataset.sq = square;
+                    if(selectedSquare === square) cell.classList.add('selected');
+                    
+                    if(board[r][c]) {
+                        const p = board[r][c];
+                        const char = p.color === 'w' ? piecesMap[p.type.toUpperCase()] : piecesMap[p.type];
+                        cell.innerHTML = `<span class="chess-piece" style="color: ${p.color === 'w' ? '#fff' : '#111'}">${char}</span>`;
+                    }
+                    cell.onclick = () => handleChessClick(square);
+                    boardEl.appendChild(cell);
+                }
+            }
+        }
+
+        function handleChessClick(square) {
+            if(chessInstance.turn() !== 'w' || chessInstance.game_over()) return;
+            
+            if(selectedSquare) {
+                const moves = chessInstance.moves({ verbose: true });
+                const move = moves.find(m => m.from === selectedSquare && m.to === square);
+                
+                if(move) {
+                    chessInstance.move(move.san);
+                    selectedSquare = null; renderChessBoard(); checkChessStatus();
+                    if(!chessInstance.game_over()) {
+                        document.getElementById('chess-status').innerText = "Opponent's Turn...";
+                        setTimeout(makeChessBotMove, 1000);
+                    }
+                } else {
+                    selectedSquare = square; renderChessBoard();
+                }
+            } else {
+                selectedSquare = square; renderChessBoard();
+            }
+        }
+
+        function makeChessBotMove() {
+            if(chessInstance.game_over()) return;
+            const moves = chessInstance.moves();
+            chessInstance.move(moves[Math.floor(Math.random() * moves.length)]);
+            renderChessBoard(); checkChessStatus();
+            if(!chessInstance.game_over()) document.getElementById('chess-status').innerText = "Your Turn (White)";
+        }
+
+        function checkChessStatus() {
+            if(chessInstance.game_over()) {
+                let msg = "", isWin = false;
+                if(chessInstance.in_checkmate()) {
+                    isWin = chessInstance.turn() === 'b';
+                    msg = isWin ? "Checkmate! You won." : "Checkmate! You lost.";
+                } else if(chessInstance.in_draw()) {
+                    msg = "Game Draw!";
+                } else {
+                    msg = "Game Over!";
+                }
+                
+                document.getElementById('chess-status').innerText = msg;
+                document.getElementById('chess-status').className = `text-center h-5 font-bold mt-4 text-xl ${isWin ? 'text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.8)]' : 'text-red-400'}`;
+                
+                if(isWin) {
+                    const reward = chessWager * 1.6; // 80% of total pot (2x bet), 20% to house
+                    if(chessToken === 'dcPlus') wallet.dcPlus += reward; else wallet.dc += reward;
+                    showToast(`You won PVP Chess! +${formatNum(reward)} ${chessToken === 'dcPlus' ? 'DC+' : 'DC'}`, "success");
+                    saveWallet(); updateUIBalances();
+                } else if (chessInstance.in_draw()) {
+                    if(chessToken === 'dcPlus') wallet.dcPlus += chessWager; else wallet.dc += chessWager;
+                    showToast("Draw. Wager refunded.");
+                    saveWallet(); updateUIBalances();
+                }
+                
+                setTimeout(() => {
+                    document.getElementById('chess-game-area').classList.add('hidden');
+                    document.getElementById('chess-game-area').classList.remove('flex');
+                    document.getElementById('chess-lobby').classList.remove('hidden');
+                    document.getElementById('btn-chess-match').disabled = false;
+                    document.getElementById('chess-lobby-status').innerText = "";
+                    document.getElementById('chess-status').className = "text-yellow-400 font-bold mt-4 h-5 text-lg";
+                }, 5000);
+            }
+        }
+
+        // PVP LUDO RACE LOGIC
+        let ludoWager = 0, ludoToken = 'dc', p1Pos = 0, p2Pos = 0, isP1Turn = true;
+        const trackLength = 14;
+
+        window.startLudoMatchmaking = () => {
+            ludoToken = document.getElementById('game-token-select').value;
+            ludoWager = Number(document.getElementById('ludo-wager').value);
+            const currentBal = ludoToken === 'dcPlus' ? wallet.dcPlus : wallet.dc;
+            if(ludoWager < 10 || ludoWager > currentBal) return showToast("Invalid wager or insufficient balance.", "error");
+            
+            document.getElementById('btn-ludo-match').disabled = true;
+            document.getElementById('ludo-lobby-status').innerText = "Finding opponent...";
+            
+            setTimeout(() => {
+                if(ludoToken === 'dcPlus') wallet.dcPlus -= ludoWager; else wallet.dc -= ludoWager;
+                updateUIBalances(); saveWallet();
+
+                const names = ['DiceKing', 'LudoMaster', 'CryptoRoller'];
+                document.getElementById('ludo-opp-name').innerText = names[Math.floor(Math.random()*names.length)];
+                
+                document.getElementById('ludo-lobby').classList.add('hidden');
+                document.getElementById('ludo-game-area').classList.remove('hidden');
+                document.getElementById('ludo-game-area').classList.add('flex');
+                
+                p1Pos = 0; p2Pos = 0; isP1Turn = true;
+                renderLudoBoard();
+                document.getElementById('ludo-status').innerText = "Your Turn! Roll the dice.";
+            }, 2000);
+        };
+
+        function renderLudoBoard() {
+            const board = document.getElementById('ludo-board-ui');
+            board.innerHTML = '';
+            for(let i=0; i<=trackLength; i++) {
+                const cell = document.createElement('div');
+                cell.className = "ludo-cell ludo-safe";
+                if(i === 0) cell.innerHTML = `<span class="text-[8px] text-gray-400 absolute top-0 left-1 font-bold">START</span>`;
+                if(i === trackLength) cell.innerHTML = `<span class="text-[8px] text-green-500 absolute top-0 right-1 font-bold">END</span>`;
+                
+                if(p1Pos === i) cell.innerHTML += `<div class="ludo-token p1"></div>`;
+                if(p2Pos === i) {
+                    const offset = p1Pos === p2Pos ? 'style="transform: translate(6px, 6px)"' : '';
+                    cell.innerHTML += `<div class="ludo-token p2" ${offset}></div>`;
+                }
+                board.appendChild(cell);
+            }
+        }
+
+        window.rollLudoDice = () => {
+            if(!isP1Turn) return;
+            document.getElementById('btn-ludo-roll').disabled = true;
+            
+            const resultEl = document.getElementById('ludo-dice-result');
+            let animTicks = 0;
+            const anim = setInterval(() => {
+                resultEl.innerText = Math.floor(Math.random() * 6) + 1;
+                animTicks++;
+                if(animTicks > 10) {
+                    clearInterval(anim);
+                    let roll = Math.floor(Math.random() * 6) + 1;
+                    resultEl.innerText = roll;
+                    
+                    p1Pos += roll;
+                    if(p1Pos >= trackLength) p1Pos = trackLength;
+                    renderLudoBoard();
+                    
+                    if(p1Pos === trackLength) return handleLudoEnd(true);
+                    
+                    isP1Turn = false;
+                    document.getElementById('ludo-status').innerText = "Opponent's Turn...";
+                    setTimeout(ludoBotTurn, 1000);
+                }
+            }, 50);
+        };
+
+        function ludoBotTurn() {
+            const resultEl = document.getElementById('ludo-dice-result');
+            let animTicks = 0;
+            const anim = setInterval(() => {
+                resultEl.innerText = Math.floor(Math.random() * 6) + 1;
+                animTicks++;
+                if(animTicks > 10) {
+                    clearInterval(anim);
+                    let roll = Math.floor(Math.random() * 6) + 1;
+                    resultEl.innerText = roll;
+                    
+                    p2Pos += roll;
+                    if(p2Pos >= trackLength) p2Pos = trackLength;
+                    renderLudoBoard();
+                    
+                    if(p2Pos === trackLength) return handleLudoEnd(false);
+                    
+                    isP1Turn = true;
+                    document.getElementById('ludo-status').innerText = "Your Turn! Roll the dice.";
+                    document.getElementById('btn-ludo-roll').disabled = false;
+                }
+            }, 50);
+        }
+
+        function handleLudoEnd(didWin) {
+            document.getElementById('ludo-status').innerText = didWin ? "You reached the end! YOU WIN!" : "Opponent won the race.";
+            document.getElementById('ludo-status').className = `text-center h-5 font-bold mt-6 text-xl ${didWin ? 'text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.8)]' : 'text-red-400'}`;
+            
+            if(didWin) {
+                const reward = ludoWager * 1.6; // 80% payout
+                if(ludoToken === 'dcPlus') wallet.dcPlus += reward; else wallet.dc += reward;
+                showToast(`You won Ludo PVP! +${formatNum(reward)} ${ludoToken === 'dcPlus' ? 'DC+' : 'DC'}`, "success");
+                saveWallet(); updateUIBalances();
+            }
+            
+            setTimeout(() => {
+                document.getElementById('ludo-game-area').classList.add('hidden');
+                document.getElementById('ludo-game-area').classList.remove('flex');
+                document.getElementById('ludo-lobby').classList.remove('hidden');
+                document.getElementById('btn-ludo-match').disabled = false;
+                document.getElementById('ludo-lobby-status').innerText = "";
+                document.getElementById('ludo-status').className = "text-yellow-400 font-bold mt-6 h-5 text-lg";
+                document.getElementById('ludo-dice-result').innerText = "?";
+            }, 4000);
+        }
 
         async function handleGameOutcome(rigged, token, wager, resTextEl) {
             const tokenSymbol = token === 'dcPlus' ? 'DC+' : 'DC';
