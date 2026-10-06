@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Crysto | Premium Crypto Ecosystem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            cyan: '#00f2fe',
+                            blue: '#4facfe',
+                            purple: '#8b5cf6',
+                            dark: '#050b14',
+                            glass: 'rgba(17, 25, 40, 0.7)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    animation: {
+                        'blob': 'blob 7s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: 1, boxShadow: '0 0 15px rgba(0, 242, 254, 0.4)' },
+                            '50%': { opacity: .5, boxShadow: '0 0 30px rgba(0, 242, 254, 0.8)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #050b14; 
+            color: #f3f4f6;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(79, 172, 254, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+        
+        /* Advanced Glassmorphism */
+        .glass-panel {
+            background: rgba(17, 25, 40, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .glass-input {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(4px);
+        }
+        .glass-input:focus {
+            border-color: #00f2fe;
+            background: rgba(0, 242, 254, 0.05);
+            outline: none;
+        }
+
+        /* Smooth tab transitions */
+        .tab-pane { display: none; opacity: 0; transform: translateY(15px); transition: all 0.4s ease; }
+        .tab-pane.active { display: block; opacity: 1; transform: translateY(0); animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Coin Flip Animation */
+        .coin-container { perspective: 1000px; }
+        .coin {
+            width: 100px; height: 100px;
+            transform-style: preserve-3d;
+            transition: transform 2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .coin.flipping-heads { transform: rotateY(1800deg); }
+        .coin.flipping-tails { transform: rotateY(1980deg); }
+        .coin-face {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.5rem;
+            border: 4px solid rgba(255,255,255,0.2);
+        }
+        .coin-front { background: linear-gradient(135deg, #00f2fe, #4facfe); transform: rotateY(0deg); }
+        .coin-back { background: linear-gradient(135deg, #8b5cf6, #4facfe); transform: rotateY(180deg); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+        /* Toast */
+        .toast { transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); transform: translateX(120%); opacity: 0; }
+        .toast.show { transform: translateX(0); opacity: 1; }
+    </style>
+</head>
+<body class="min-h-screen overflow-hidden flex flex-col relative">
+
+    <!-- Background Animated Blobs -->
+    <div class="fixed inset-0 w-full h-full overflow-hidden pointer-events-none z-[-1]">
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-brand-cyan/20 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob"></div>
+        <div class="absolute top-1/4 right-1/4 w-96 h-96 bg-brand-purple/20 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
+        <div class="absolute -bottom-32 left-1/2 w-96 h-96 bg-brand-blue/20 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob animation-delay-4000"></div>
+    </div>
+
+    <div id="landing-page" class="absolute inset-0 z-40 overflow-y-auto transition-opacity duration-700 bg-brand-dark/80 backdrop-blur-sm">
+        <nav class="w-full px-6 py-5 flex justify-between items-center max-w-7xl mx-auto">
+            <div class="flex items-center space-x-3 cursor-pointer hover:scale-105 transition-transform">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-cyan to-brand-blue flex items-center justify-center shadow-lg shadow-brand-cyan/30">
+                    <i class="fa-solid fa-gem text-white text-lg"></i>
+                </div>
+                <span class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 tracking-tight">Crysto</span>
+            </div>
+            <button onclick="toggleAuthModal()" class="px-7 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold rounded-full backdrop-blur-md transition-all hover:shadow-[0_0_20px_rgba(0,242,254,0.3)]">
+                Launch App
+            </button>
+        </nav>
+
+        <main class="pt-20 pb-24 px-6 max-w-7xl mx-auto flex flex-col items-center text-center relative">
+            <div class="animate-float mb-8 inline-flex items-center px-4 py-2 rounded-full glass-panel text-brand-cyan text-sm font-medium border-brand-cyan/30">
+                <span class="relative flex h-2.5 w-2.5 mr-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-cyan opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-cyan"></span>
+                </span>
+                V2 Ecosystem Now Live
+            </div>
+            
+            <h1 class="text-6xl md:text-8xl font-black text-white mb-6 leading-tight tracking-tighter">
+                The Future of <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan via-brand-blue to-brand-purple">Digital Wealth</span>
+            </h1>
+            
+            <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed">
+                Swap, stake, and play. Access 3% monthly yields on DC+, earn free tokens through airdrops, and multiply your holdings in our gaming hub.
+            </p>
+            
+            <button onclick="toggleAuthModal()" class="group relative px-8 py-4 bg-gradient-to-r from-brand-cyan to-brand-blue text-brand-dark text-lg font-bold rounded-full transition-all hover:scale-105 shadow-[0_0_30px_rgba(0,242,254,0.4)] overflow-hidden">
+                <div class="absolute inset-0 bg-white/20 group-hover:translate-x-full -translate-x-full transition-transform duration-500 ease-out skew-x-12"></div>
+                <span class="relative flex items-center space-x-2">
+                    <span>Enter Ecosystem</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </span>
+            </button>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-28 w-full text-left">
+                <div class="glass-panel p-8 rounded-3xl hover:-translate-y-2 transition-transform duration-300">
+                    <div class="w-14 h-14 rounded-2xl bg-brand-cyan/10 text-brand-cyan flex items-center justify-center mb-6 border border-brand-cyan/20">
+                        <i class="fa-solid fa-right-left text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">Seamless Swap</h3>
+                    <p class="text-gray-400">Instantly convert your USDT into DC+ tokens to access our high-yield staking pools.</p>
+                </div>
+                <div class="glass-panel p-8 rounded-3xl hover:-translate-y-2 transition-transform duration-300">
+                    <div class="w-14 h-14 rounded-2xl bg-brand-purple/10 text-brand-purple flex items-center justify-center mb-6 border border-brand-purple/20">
+                        <i class="fa-solid fa-chart-line text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">3% Monthly Yield</h3>
+                    <p class="text-gray-400">Stake your DC+ tokens and watch your portfolio grow algorithmically with guaranteed returns.</p>
+                </div>
+                <div class="glass-panel p-8 rounded-3xl hover:-translate-y-2 transition-transform duration-300">
+                    <div class="w-14 h-14 rounded-2xl bg-brand-blue/10 text-brand-blue flex items-center justify-center mb-6 border border-brand-blue/20">
+                        <i class="fa-solid fa-gamepad text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">Play & Earn</h3>
+                    <p class="text-gray-400">Claim free DC tokens via Airdrops and multiply them in our provably fair mini-games.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="auth-modal" class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-md hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="glass-panel p-10 rounded-[2rem] w-full max-w-md shadow-2xl relative transform scale-95 transition-transform duration-300" id="auth-modal-content">
+            <button onclick="closeAuthModal()" class="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-cyan to-brand-blue mx-auto flex items-center justify-center shadow-[0_0_20px_rgba(0,242,254,0.4)] mb-5">
+                    <i class="fa-solid fa-gem text-white text-3xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-white">Initialize Wallet</h2>
+                <p class="text-gray-400 mt-2">Connect to the Crysto Network.</p>
+            </div>
+
+            <div id="auth-loading" class="hidden flex-col items-center justify-center py-8">
+                <div class="relative w-16 h-16 flex items-center justify-center mb-4">
+                    <div class="absolute inset-0 rounded-full border-4 border-white/10 border-t-brand-cyan animate-spin"></div>
+                    <i class="fa-solid fa-link text-brand-cyan text-xl animate-pulse"></i>
+                </div>
+                <p class="text-brand-cyan font-medium animate-pulse">Syncing Nodes...</p>
+            </div>
+
+            <div id="auth-form" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2 ml-1">Alias / Username</label>
+                    <input type="text" id="auth-name" placeholder="CryptoNinja99" class="w-full glass-input rounded-xl px-4 py-3.5 text-white placeholder-gray-500 transition-all">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2 ml-1">Secure Email</label>
+                    <input type="email" id="auth-email" placeholder="ninja@crysto.app" class="w-full glass-input rounded-xl px-4 py-3.5 text-white placeholder-gray-500 transition-all">
+                </div>
+                <button id="btn-login" class="w-full bg-gradient-to-r from-brand-cyan to-brand-blue text-brand-dark font-bold py-4 px-4 rounded-xl transition-all hover:shadow-[0_0_15px_rgba(0,242,254,0.5)] mt-4 text-lg">
+                    Connect
+                </button>
+                <p class="text-xs text-center text-gray-500 mt-4">By connecting, you agree to our Terms of Service. Demo accounts receive 1,000 test USDT.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-layout" class="hidden flex-1 flex h-screen w-full relative z-10">
+        
+        <!-- Sidebar -->
+        <aside class="w-64 glass-panel border-r border-white/5 hidden md:flex flex-col z-20 shadow-2xl">
+            <div class="h-20 flex items-center px-6 border-b border-white/5 bg-white/5">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-cyan to-brand-blue flex items-center justify-center shadow-lg mr-3">
+                    <i class="fa-solid fa-gem text-white text-lg"></i>
+                </div>
+                <span class="text-2xl font-bold text-white tracking-wide">Crysto</span>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 ml-2">Main Menu</div>
+                <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl bg-brand-cyan/10 text-brand-cyan font-medium transition-all" data-target="dashboard">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i> <span>Dashboard</span>
+                </button>
+                <button onclick="switchTab('swap')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 font-medium transition-all" data-target="swap">
+                    <i class="fa-solid fa-right-left w-5 text-center"></i> <span>Swap <span class="text-xs bg-brand-purple/20 text-brand-purple px-1.5 py-0.5 rounded ml-1">HOT</span></span>
+                </button>
+                <button onclick="switchTab('invest')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 font-medium transition-all" data-target="invest">
+                    <i class="fa-solid fa-vault w-5 text-center"></i> <span>Stake DC+</span>
+                </button>
+                
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-6 mb-2 ml-2">Ecosystem</div>
+                <button onclick="switchTab('airdrop')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 font-medium transition-all" data-target="airdrop">
+                    <i class="fa-solid fa-parachute-box w-5 text-center"></i> <span>Airdrop Tasks</span>
+                </button>
+                <button onclick="switchTab('games')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 font-medium transition-all" data-target="games">
+                    <i class="fa-solid fa-dice w-5 text-center"></i> <span>Mini-Games</span>
+                </button>
+                <button onclick="switchTab('referrals')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 font-medium transition-all" data-target="referrals">
+                    <i class="fa-solid fa-users w-5 text-center"></i> <span>Referrals</span>
+                </button>
+            </nav>
+
+            <div class="p-4 m-4 glass-panel rounded-2xl border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onclick="switchTab('profile')">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-gray-700 to-gray-600 flex items-center justify-center text-white font-bold border border-white/20" id="sidebar-avatar">U</div>
+                    <div class="flex-1 min-w-0">
+                        <p id="sidebar-name" class="text-sm font-semibold text-white truncate">Loading...</p>
+                        <p class="text-xs text-brand-cyan truncate flex items-center mt-0.5">
+                            <span class="relative flex h-2 w-2 mr-1.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-cyan opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-brand-cyan"></span></span> Online
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col h-full overflow-y-auto pb-24 md:pb-0 relative scroll-smooth">
+            
+            <!-- Mobile Header -->
+            <header class="md:hidden h-16 flex items-center justify-between px-6 border-b border-white/5 glass-panel sticky top-0 z-30">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-cyan to-brand-blue flex items-center justify-center">
+                        <i class="fa-solid fa-gem text-white text-sm"></i>
+                    </div>
+                    <span class="font-bold text-white tracking-wide">Crysto</span>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white text-sm font-bold border border-white/20" id="mobile-avatar" onclick="switchTab('profile')">U</div>
+            </header>
+
+            <div class="p-6 md:p-10 max-w-6xl w-full mx-auto">
+                
+                <div id="tab-dashboard" class="tab-pane active">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+                        <div>
+                            <h2 class="text-3xl font-bold text-white tracking-tight">Wallet Overview</h2>
+                            <p class="text-gray-400 mt-1">Manage your digital assets securely.</p>
+                        </div>
+                    </div>
+
+                    <!-- Balances -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                        <!-- USDT -->
+                        <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group">
+                            <div class="absolute -right-10 -top-10 w-32 h-32 bg-green-500/10 rounded-full blur-3xl group-hover:bg-green-500/20 transition-all"></div>
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                                    <i class="fa-solid fa-dollar-sign"></i>
+                                </div>
+                                <span class="text-xs font-medium text-gray-500 bg-black/30 px-2 py-1 rounded-full">Liquid</span>
+                            </div>
+                            <p class="text-sm font-medium text-gray-400 mb-1">Tether (USDT)</p>
+                            <h3 id="bal-usdt" class="text-3xl font-bold text-white tracking-tight">0.00</h3>
+                        </div>
+                        
+                        <!-- DC+ -->
+                        <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group border-t-2 border-brand-cyan">
+                            <div class="absolute -right-10 -top-10 w-32 h-32 bg-brand-cyan/10 rounded-full blur-3xl group-hover:bg-brand-cyan/20 transition-all"></div>
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-10 h-10 rounded-full bg-brand-cyan/20 flex items-center justify-center text-brand-cyan">
+                                    <i class="fa-solid fa-gem"></i><i class="fa-solid fa-plus text-[8px] absolute top-2 right-2"></i>
+                                </div>
+                                <span class="text-xs font-medium text-brand-cyan bg-brand-cyan/10 border border-brand-cyan/20 px-2 py-1 rounded-full animate-pulse">Yield Bearing</span>
+                            </div>
+                            <p class="text-sm font-medium text-gray-400 mb-1">Crysto Plus (DC+)</p>
+                            <h3 id="bal-dcplus" class="text-3xl font-bold text-white tracking-tight">0.00</h3>
+                        </div>
+
+                        <!-- DC -->
+                        <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group border-t-2 border-brand-purple">
+                            <div class="absolute -right-10 -top-10 w-32 h-32 bg-brand-purple/10 rounded-full blur-3xl group-hover:bg-brand-purple/20 transition-all"></div>
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-10 h-10 rounded-full bg-brand-purple/20 flex items-center justify-center text-brand-purple">
+                                    <i class="fa-solid fa-coins"></i>
+                                </div>
+                                <span class="text-xs font-medium text-brand-purple bg-brand-purple/10 border border-brand-purple/20 px-2 py-1 rounded-full">Gaming Token</span>
+                            </div>
+                            <p class="text-sm font-medium text-gray-400 mb-1">Crysto Token (DC)</p>
+                            <h3 id="bal-dc" class="text-3xl font-bold text-white tracking-tight">0.00</h3>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Staking Stats -->
+                        <div class="glass-panel rounded-3xl p-8 border border-white/5">
+                            <h3 class="text-xl font-bold text-white mb-6 flex items-center"><i class="fa-solid fa-chart-line text-brand-cyan mr-3"></i> Yield Generation (DC+)</h3>
+                            <div class="space-y-6">
+                                <div class="flex justify-between items-center pb-4 border-b border-white/10">
+                                    <span class="text-gray-400">Total Staked DC+</span>
+                                    <span id="stat-staked" class="font-bold text-white text-lg">0.00</span>
+                                </div>
+                                <div class="flex justify-between items-center pb-4 border-b border-white/10">
+                                    <span class="text-gray-400">Total Yield Earned</span>
+                                    <span id="stat-earned" class="font-bold text-green-400 text-lg">+0.00</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-400">Est. Next 30 Days (3%)</span>
+                                    <span id="stat-projected" class="font-bold text-brand-cyan text-lg">0.00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="glass-panel rounded-3xl p-8 border border-white/5 flex flex-col justify-center">
+                             <h3 class="text-xl font-bold text-white mb-6 flex items-center"><i class="fa-solid fa-bolt text-yellow-400 mr-3"></i> Quick Actions</h3>
+                             <div class="grid grid-cols-2 gap-4">
+                                 <button onclick="switchTab('swap')" class="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 flex flex-col items-center justify-center transition-all group">
+                                     <div class="w-12 h-12 rounded-full bg-brand-cyan/20 text-brand-cyan flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                         <i class="fa-solid fa-right-left"></i>
+                                     </div>
+                                     <span class="text-sm font-medium text-white">Swap USDT to DC+</span>
+                                 </button>
+                                 <button onclick="switchTab('games')" class="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 flex flex-col items-center justify-center transition-all group">
+                                     <div class="w-12 h-12 rounded-full bg-brand-purple/20 text-brand-purple flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                         <i class="fa-solid fa-dice"></i>
+                                     </div>
+                                     <span class="text-sm font-medium text-white">Play Mini-Games</span>
+                                 </button>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-swap" class="tab-pane">
+                    <h2 class="text-3xl font-bold text-white tracking-tight mb-2">Swap Protocol</h2>
+                    <p class="text-gray-400 mb-10">Convert your USDT to DC+ (1:1 Ratio) to enable staking.</p>
+
+                    <div class="max-w-md mx-auto glass-panel rounded-[2rem] p-8 relative overflow-hidden">
+                        <!-- Decor -->
+                        <div class="absolute -right-20 -top-20 w-64 h-64 bg-brand-cyan/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                        <!-- From USDT -->
+                        <div class="bg-black/40 rounded-2xl p-4 border border-white/10 mb-2">
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-gray-400">From</span>
+                                <span class="text-gray-400 cursor-pointer hover:text-brand-cyan transition-colors" onclick="setMaxSwap()">Balance: <span id="swap-usdt-bal" class="text-white font-mono">0.00</span> Max</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <input type="number" id="swap-amount" placeholder="0.0" class="w-full bg-transparent text-3xl font-bold text-white focus:outline-none placeholder-gray-600">
+                                <div class="flex items-center space-x-2 bg-white/10 px-3 py-1.5 rounded-xl shrink-0">
+                                    <div class="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-xs"><i class="fa-solid fa-dollar-sign"></i></div>
+                                    <span class="font-bold text-white">USDT</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Arrow -->
+                        <div class="flex justify-center -my-3 relative z-10">
+                            <div class="w-10 h-10 rounded-full bg-brand-dark border-4 border-gray-800 flex items-center justify-center text-brand-cyan">
+                                <i class="fa-solid fa-arrow-down"></i>
+                            </div>
+                        </div>
+
+                        <!-- To DC+ -->
+                        <div class="bg-black/40 rounded-2xl p-4 border border-white/10 mt-2 mb-8">
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-gray-400">To (Estimated)</span>
+                                <span class="text-gray-400">Balance: <span id="swap-dcplus-bal" class="text-white font-mono">0.00</span></span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <input type="text" id="swap-receive" placeholder="0.0" disabled class="w-full bg-transparent text-3xl font-bold text-brand-cyan focus:outline-none placeholder-gray-600">
+                                <div class="flex items-center space-x-2 bg-brand-cyan/20 px-3 py-1.5 rounded-xl shrink-0">
+                                    <div class="w-6 h-6 rounded-full bg-brand-cyan/30 flex items-center justify-center text-brand-cyan text-xs"><i class="fa-solid fa-gem"></i></div>
+                                    <span class="font-bold text-white">DC+</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="btn-execute-swap" class="w-full bg-gradient-to-r from-brand-cyan to-brand-blue text-brand-dark font-bold py-4 px-6 rounded-2xl transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(0,242,254,0.3)] text-lg">
+                            Execute Swap
+                        </button>
+                    </div>
+                </div>
+
+                <div id="tab-invest" class="tab-pane">
+                    <h2 class="text-3xl font-bold text-white tracking-tight mb-2">Stake DC+</h2>
+                    <p class="text-gray-400 mb-10">Deploy your DC+ tokens into the yield generator for 3% monthly.</p>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                        <div class="lg:col-span-3">
+                            <div class="glass-panel rounded-[2rem] p-8">
+                                <div class="flex justify-between items-center mb-6">
+                                    <label class="text-sm font-medium text-gray-400 uppercase tracking-wider">Stake Amount</label>
+                                    <span class="text-sm text-gray-400">Available: <span id="stake-avail" class="text-brand-cyan font-bold">0.00 DC+</span></span>
+                                </div>
+                                <div class="relative flex items-center mb-8">
+                                    <input type="number" id="invest-amount" placeholder="0.00" class="w-full glass-input rounded-2xl pl-6 pr-24 py-5 text-3xl text-white font-bold transition-all">
+                                    <button onclick="setMaxStake()" class="absolute right-4 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-bold text-white transition-colors uppercase">Max</button>
+                                </div>
+
+                                <div class="bg-black/30 rounded-2xl p-6 mb-8 border border-brand-cyan/20">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <span class="text-gray-400 text-sm">Monthly Return (3%)</span>
+                                        <span id="calc-monthly" class="font-bold text-brand-cyan text-lg">+0.00 DC+</span>
+                                    </div>
+                                    <div class="flex justify-between items-center pt-4 border-t border-white/10">
+                                        <span class="text-gray-400 text-sm">Yearly Projection (36%)</span>
+                                        <span id="calc-yearly" class="font-bold text-green-400 text-lg">+0.00 DC+</span>
+                                    </div>
+                                </div>
+
+                                <button id="btn-submit-invest" class="w-full bg-white text-brand-dark font-bold py-4 px-6 rounded-2xl transition-all hover:bg-gray-200 shadow-lg text-lg flex items-center justify-center space-x-2">
+                                    <i class="fa-solid fa-lock"></i>
+                                    <span>Lock & Stake Tokens</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-2">
+                            <div class="glass-panel rounded-[2rem] p-8 h-full">
+                                <h3 class="text-xl font-bold text-white mb-6">Active Stakes</h3>
+                                <div class="overflow-y-auto max-h-[400px] pr-2 custom-scrollbar space-y-4" id="stakes-list">
+                                    <div class="text-center text-gray-500 py-10">
+                                        <i class="fa-solid fa-box-open text-4xl mb-3 opacity-50"></i>
+                                        <p>No active stakes.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-airdrop" class="tab-pane">
+                    <div class="flex justify-between items-end mb-10">
+                        <div>
+                            <h2 class="text-3xl font-bold text-white tracking-tight mb-2">Airdrop Tasks</h2>
+                            <p class="text-gray-400">Complete tasks to earn free DC tokens for the gaming hub.</p>
+                        </div>
+                        <div class="glass-panel px-4 py-2 rounded-xl border-brand-purple/30">
+                            <span class="text-sm text-gray-400 mr-2">Your DC:</span>
+                            <span id="airdrop-dc-bal" class="font-bold text-brand-purple text-xl">0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="tasks-container">
+                        <!-- Tasks generated by JS -->
+                    </div>
+                </div>
+
+                <div id="tab-games" class="tab-pane">
+                    <h2 class="text-3xl font-bold text-white tracking-tight mb-2">Gaming Hub</h2>
+                    <p class="text-gray-400 mb-8">Predict the coin flip. Double your DC tokens or lose your wager.</p>
+
+                    <div class="max-w-2xl mx-auto glass-panel rounded-[2rem] p-10 flex flex-col items-center border border-brand-purple/30 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-brand-purple/5 pointer-events-none"></div>
+                        
+                        <div class="mb-6 bg-black/40 px-6 py-2 rounded-full border border-white/10">
+                            <span class="text-gray-400 text-sm mr-2">Available Balance:</span>
+                            <span id="game-dc-bal" class="font-bold text-brand-purple text-lg">0.00 DC</span>
+                        </div>
+
+                        <!-- 3D Coin -->
+                        <div class="coin-container my-10">
+                            <div id="coin-obj" class="coin relative">
+                                <div class="coin-face coin-front text-white shadow-[0_0_30px_rgba(0,242,254,0.6)]">HEADS</div>
+                                <div class="coin-face coin-back text-white shadow-[0_0_30px_rgba(139,92,246,0.6)]">TAILS</div>
+                            </div>
+                        </div>
+
+                        <div class="w-full max-w-sm space-y-6 relative z-10">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-2 text-center">Wager Amount (DC)</label>
+                                <input type="number" id="game-wager" value="10" min="1" class="w-full glass-input rounded-xl px-4 py-3 text-center text-2xl text-white font-bold">
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <button onclick="playCoinFlip('heads')" id="btn-heads" class="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-brand-cyan to-blue-500 hover:shadow-[0_0_15px_rgba(0,242,254,0.5)] transition-all">
+                                    Predict HEADS
+                                </button>
+                                <button onclick="playCoinFlip('tails')" id="btn-tails" class="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-brand-purple to-pink-500 hover:shadow-[0_0_15px_rgba(139,92,246,0.5)] transition-all">
+                                    Predict TAILS
+                                </button>
+                            </div>
+                            <p id="game-result" class="text-center h-6 font-bold text-lg mt-4"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-referrals" class="tab-pane">
+                    <h2 class="text-3xl font-bold text-white tracking-tight mb-2">Referral Network</h2>
+                    <p class="text-gray-400 mb-10">Invite friends and earn 5% bonus on their swaps.</p>
+                    <div class="glass-panel rounded-3xl p-8 border border-white/5">
+                        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Your Invite Link</h3>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <input type="text" id="ref-link-input" readonly class="flex-1 glass-input rounded-xl px-5 py-4 text-brand-cyan font-mono text-sm">
+                            <button onclick="copyReferral()" class="bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl transition-colors font-bold shrink-0">
+                                Copy Link
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-profile" class="tab-pane">
+                    <h2 class="text-3xl font-bold text-white tracking-tight mb-8">Account</h2>
+                    <div class="max-w-2xl glass-panel rounded-3xl p-8 border border-white/5">
+                        <div class="flex items-center space-x-6 mb-8 pb-8 border-b border-white/10">
+                            <div class="w-20 h-20 rounded-full bg-gradient-to-r from-gray-700 to-gray-600 flex items-center justify-center text-3xl text-white font-bold" id="profile-avatar-large">U</div>
+                            <div>
+                                <h3 id="profile-name-display" class="text-2xl font-bold text-white">User</h3>
+                                <p id="profile-email-display" class="text-gray-400">email@example.com</p>
+                            </div>
+                        </div>
+                        <button id="btn-logout" class="flex items-center space-x-2 text-red-400 hover:text-red-300 transition-colors font-medium bg-red-500/10 px-6 py-3 rounded-xl border border-red-500/20">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                            <span>Secure Logout</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Mobile Bottom Nav -->
+        <nav class="md:hidden fixed bottom-0 w-full glass-panel border-t border-white/10 flex justify-around py-3 pb-safe z-40">
+            <button onclick="switchTab('dashboard')" class="nav-btn-mobile flex flex-col items-center p-2 text-brand-cyan" data-target="dashboard">
+                <i class="fa-solid fa-chart-pie mb-1 text-lg"></i><span class="text-[10px]">Home</span>
+            </button>
+            <button onclick="switchTab('swap')" class="nav-btn-mobile flex flex-col items-center p-2 text-gray-500" data-target="swap">
+                <i class="fa-solid fa-right-left mb-1 text-lg"></i><span class="text-[10px]">Swap</span>
+            </button>
+            <button onclick="switchTab('invest')" class="nav-btn-mobile flex flex-col items-center p-2 text-gray-500" data-target="invest">
+                <i class="fa-solid fa-vault mb-1 text-lg"></i><span class="text-[10px]">Stake</span>
+            </button>
+            <button onclick="switchTab('games')" class="nav-btn-mobile flex flex-col items-center p-2 text-gray-500" data-target="games">
+                <i class="fa-solid fa-dice mb-1 text-lg"></i><span class="text-[10px]">Play</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[70] flex flex-col space-y-3 pointer-events-none w-full max-w-xs px-4 sm:px-0"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, onSnapshot, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const hasFirebaseConfig = typeof __firebase_config !== 'undefined';
+        const firebaseConfig = hasFirebaseConfig ? JSON.parse(__firebase_config) : null;
+        let app, db, auth;
+        
+        if (firebaseConfig) {
+            try { 
+                app = initializeApp(firebaseConfig); 
+                db = getFirestore(app); 
+                auth = getAuth(app); 
+            } 
+            catch (e) { 
+                console.warn("Firebase init failed, using local mode."); 
+            }
+        } else {
+            console.warn("No Firebase config found. Using local fallback mode.");
+        }
+
+        // State
+        let user = null;
+        let profile = {};
+        let wallet = { usdt: 1000, dcPlus: 0, dc: 50 }; // Default mock start
+        let stakes = [];
+        let completedTasks = [];
+        let unsubWallet = null;
+        let unsubStakes = null;
+
+        const tasksList = [
+            { id: 't1', title: 'Follow on Twitter', reward: 50, icon: 'fa-twitter', color: 'text-blue-400' },
+            { id: 't2', title: 'Join Telegram Chat', reward: 50, icon: 'fa-telegram', color: 'text-blue-500' },
+            { id: 't3', title: 'Read Whitepaper', reward: 100, icon: 'fa-file-lines', color: 'text-gray-300' },
+            { id: 't4', title: 'Daily Check-in', reward: 10, icon: 'fa-calendar-check', color: 'text-green-400' }
+        ];
+
+        // Global UI Helpers (Fixing the reference error)
+        window.toggleAuthModal = () => {
+            const modal = document.getElementById('auth-modal');
+            const content = document.getElementById('auth-modal-content');
+            if (modal.classList.contains('hidden')) {
+                window.openAuthModal();
+            } else {
+                window.closeAuthModal();
+            }
+        };
+
+        window.openAuthModal = () => {
+            const modal = document.getElementById('auth-modal');
+            const content = document.getElementById('auth-modal-content');
+            modal.classList.remove('hidden');
+            // small delay for transition
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            });
+        };
+
+        window.closeAuthModal = () => {
+            const modal = document.getElementById('auth-modal');
+            const content = document.getElementById('auth-modal-content');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        };
+
+        window.showToast = (msg, type = 'success') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const color = type === 'success' ? 'border-green-500/50 bg-green-500/10 text-green-400' : 'border-red-500/50 bg-red-500/10 text-red-400';
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-circle-exclamation';
+            toast.className = `toast glass-panel border ${color} px-4 py-3 rounded-xl flex items-center space-x-3 pointer-events-auto backdrop-blur-xl`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-lg"></i><span class="font-medium text-sm text-white">${msg}</span>`;
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3000);
+        };
+
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-pane').forEach(el => { el.classList.remove('active'); el.style.display = 'none'; });
+            const target = document.getElementById('tab-' + tabId);
+            target.style.display = 'block';
+            requestAnimationFrame(() => target.classList.add('active'));
+            
+            // Nav states
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                const isActive = btn.dataset.target === tabId;
+                btn.className = `nav-btn w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl font-medium transition-all ${isActive ? 'bg-brand-cyan/10 text-brand-cyan' : 'text-gray-400 hover:text-white hover:bg-white/5'}`;
+            });
+            document.querySelectorAll('.nav-btn-mobile').forEach(btn => {
+                const isActive = btn.dataset.target === tabId;
+                btn.className = `nav-btn-mobile flex flex-col items-center p-2 ${isActive ? 'text-brand-cyan' : 'text-gray-500'}`;
+            });
+        };
+
+        const formatNum = (num) => Number(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        document.getElementById('btn-login').addEventListener('click', async () => {
+            const name = document.getElementById('auth-name').value.trim() || 'Anonymous';
+            const email = document.getElementById('auth-email').value.trim() || 'demo@crysto.app';
+            
+            document.getElementById('auth-form').classList.add('hidden');
+            document.getElementById('auth-loading').classList.remove('hidden');
+            document.getElementById('auth-loading').classList.add('flex');
+
+            try {
+                if(auth) {
+                    window.tempName = name; window.tempEmail = email;
+                    await signInAnonymously(auth);
+                } else {
+                    // Fallback local mode
+                    user = { uid: 'local-demo-user' };
+                    profile = { name, email, ref: 'CRY-'+Math.floor(Math.random()*10000) };
+                    initLocalApp();
+                }
+            } catch (err) {
+                console.warn("Auth failed, falling back to local mode.", err);
+                user = { uid: 'local-demo-user' };
+                profile = { name, email, ref: 'CRY-'+Math.floor(Math.random()*10000) };
+                initLocalApp();
+            }
+        });
+
+        if(auth) {
+            onAuthStateChanged(auth, async (u) => {
+                if (u) {
+                    user = u;
+                    try {
+                        const pref = doc(db, 'users', u.uid);
+                        const pSnap = await getDoc(pref);
+                        if(!pSnap.exists()) {
+                            profile = { name: window.tempName || 'Demo', email: window.tempEmail || 'demo@crysto.app', ref: 'CRY-'+u.uid.substring(0,6) };
+                            await setDoc(pref, { profile, wallet, completedTasks });
+                        } else {
+                            const data = pSnap.data();
+                            profile = data.profile; wallet = data.wallet || wallet; completedTasks = data.completedTasks || [];
+                        }
+                        setupRealtime();
+                        initAppUI();
+                    } catch (err) {
+                        console.warn("Firestore permissions issue, falling back to local memory:", err);
+                        profile = { name: window.tempName || 'Demo', email: window.tempEmail || 'demo@crysto.app', ref: 'CRY-'+u.uid.substring(0,6) };
+                        initLocalApp();
+                    }
+                } else {
+                    document.getElementById('app-layout').classList.add('hidden');
+                    document.getElementById('landing-page').classList.remove('hidden');
+                    document.getElementById('landing-page').style.opacity = '1';
+                }
+            });
+        }
+
+        function initLocalApp() {
+            initAppUI();
+            updateUIBalances();
+            renderTasks();
+        }
+
+        function setupRealtime() {
+            if (!db) return;
+            try {
+                unsubWallet = onSnapshot(doc(db, 'users', user.uid), (doc) => {
+                    if(doc.exists()) {
+                        wallet = doc.data().wallet || wallet;
+                        completedTasks = doc.data().completedTasks || [];
+                        updateUIBalances();
+                        renderTasks();
+                    }
+                }, (err) => console.warn("Wallet snapshot ignored due to permissions:", err));
+                
+                unsubStakes = onSnapshot(collection(db, 'users', user.uid, 'stakes'), (snap) => {
+                    stakes = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                    updateStakesUI();
+                }, (err) => console.warn("Stakes snapshot ignored due to permissions:", err));
+            } catch (err) {
+                console.warn("Realtime setup failed:", err);
+            }
+        }
+
+        function initAppUI() {
+            closeAuthModal();
+            document.getElementById('landing-page').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('landing-page').classList.add('hidden');
+                document.getElementById('app-layout').classList.remove('hidden');
+                switchTab('dashboard');
+                
+                // Profile UI
+                const initial = profile.name ? profile.name.charAt(0).toUpperCase() : 'U';
+                document.getElementById('sidebar-avatar').innerText = initial;
+                document.getElementById('mobile-avatar').innerText = initial;
+                document.getElementById('profile-avatar-large').innerText = initial;
+                document.getElementById('sidebar-name').innerText = profile.name;
+                document.getElementById('profile-name-display').innerText = profile.name;
+                document.getElementById('profile-email-display').innerText = profile.email;
+                document.getElementById('ref-link-input').value = `https://crysto.app/join?ref=${profile.ref}`;
+            }, 500);
+        }
+
+        async function saveWallet() {
+            if(auth && user && db) {
+                try {
+                    await updateDoc(doc(db, 'users', user.uid), { wallet, completedTasks });
+                } catch(e) {
+                    console.warn("Firestore save denied, using local state.");
+                    updateUIBalances();
+                }
+            } else {
+                updateUIBalances(); // local only
+            }
+        }
+
+        function updateUIBalances() {
+            document.getElementById('bal-usdt').innerText = formatNum(wallet.usdt);
+            document.getElementById('bal-dcplus').innerText = formatNum(wallet.dcPlus);
+            document.getElementById('bal-dc').innerText = formatNum(wallet.dc);
+            document.getElementById('swap-usdt-bal').innerText = formatNum(wallet.usdt);
+            document.getElementById('swap-dcplus-bal').innerText = formatNum(wallet.dcPlus);
+            document.getElementById('stake-avail').innerText = formatNum(wallet.dcPlus) + ' DC+';
+            document.getElementById('airdrop-dc-bal').innerText = formatNum(wallet.dc);
+            document.getElementById('game-dc-bal').innerText = formatNum(wallet.dc) + ' DC';
+        }
+
+        window.setMaxSwap = () => {
+            document.getElementById('swap-amount').value = wallet.usdt;
+            document.getElementById('swap-amount').dispatchEvent(new Event('input'));
+        };
+
+        document.getElementById('swap-amount').addEventListener('input', (e) => {
+            document.getElementById('swap-receive').value = e.target.value; // 1:1
+        });
+
+        document.getElementById('btn-execute-swap').addEventListener('click', async () => {
+            const amt = Number(document.getElementById('swap-amount').value);
+            if(amt <= 0 || amt > wallet.usdt) return showToast("Invalid amount or insufficient USDT.", "error");
+            
+            const btn = document.getElementById('btn-execute-swap');
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Swapping...`;
+            
+            setTimeout(async () => {
+                wallet.usdt -= amt;
+                wallet.dcPlus += amt;
+                await saveWallet();
+                showToast(`Successfully swapped ${amt} USDT to DC+`);
+                document.getElementById('swap-amount').value = '';
+                document.getElementById('swap-receive').value = '';
+                btn.innerHTML = `Execute Swap`;
+            }, 800);
+        });
+
+        window.setMaxStake = () => {
+            document.getElementById('invest-amount').value = wallet.dcPlus;
+            document.getElementById('invest-amount').dispatchEvent(new Event('input'));
+        };
+
+        document.getElementById('invest-amount').addEventListener('input', (e) => {
+            const amt = Number(e.target.value);
+            document.getElementById('calc-monthly').innerText = '+' + formatNum(amt * 0.03) + ' DC+';
+            document.getElementById('calc-yearly').innerText = '+' + formatNum(amt * 0.36) + ' DC+';
+        });
+
+        document.getElementById('btn-submit-invest').addEventListener('click', async () => {
+            const amt = Number(document.getElementById('invest-amount').value);
+            if(amt < 10 || amt > wallet.dcPlus) return showToast("Min 10 DC+ required, or insufficient balance.", "error");
+            
+            wallet.dcPlus -= amt;
+            
+            if(auth && user && db) {
+                try {
+                    await updateDoc(doc(db, 'users', user.uid), { wallet });
+                    await addDoc(collection(db, 'users', user.uid, 'stakes'), { amount: amt, date: Date.now() });
+                } catch(e) {
+                    console.warn("Firestore add stake denied, using local state.");
+                    stakes.push({ amount: amt, date: Date.now() });
+                }
+            } else {
+                stakes.push({ amount: amt, date: Date.now() }); // Local fallback
+                saveWallet(); 
+            }
+            updateStakesUI();
+            showToast(`Staked ${amt} DC+ successfully!`);
+            document.getElementById('invest-amount').value = '';
+        });
+
+        function updateStakesUI() {
+            const list = document.getElementById('stakes-list');
+            let total = 0, earned = 0;
+            
+            if(stakes.length === 0) {
+                list.innerHTML = `<div class="text-center text-gray-500 py-10"><i class="fa-solid fa-box-open text-4xl mb-3 opacity-50"></i><p>No active stakes.</p></div>`;
+            } else {
+                list.innerHTML = '';
+                stakes.sort((a,b)=>b.date - a.date).forEach(s => {
+                    total += s.amount;
+                    // Mock earned calc
+                    const days = (Date.now() - s.date) / (1000 * 3600 * 24);
+                    const sEarned = s.amount * 0.03 * (days / 30);
+                    earned += sEarned;
+                    
+                    list.innerHTML += `
+                        <div class="bg-black/30 p-4 rounded-xl border border-white/5 flex justify-between items-center">
+                            <div>
+                                <p class="text-white font-bold">${formatNum(s.amount)} DC+</p>
+                                <p class="text-xs text-gray-500">${new Date(s.date).toLocaleDateString()}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-brand-cyan/20 text-brand-cyan px-2 py-1 rounded text-xs font-bold">ACTIVE</span>
+                                <p class="text-green-400 text-sm mt-1">+${formatNum(sEarned)}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            document.getElementById('stat-staked').innerText = formatNum(total) + ' DC+';
+            document.getElementById('stat-earned').innerText = '+' + formatNum(earned) + ' DC+';
+            document.getElementById('stat-projected').innerText = '+' + formatNum(total * 0.03) + ' DC+';
+        }
+
+        function renderTasks() {
+            const container = document.getElementById('tasks-container');
+            container.innerHTML = '';
+            tasksList.forEach(t => {
+                const done = completedTasks.includes(t.id);
+                container.innerHTML += `
+                    <div class="glass-panel p-6 rounded-2xl flex items-center justify-between border ${done ? 'border-green-500/30' : 'border-white/5'}">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center ${t.color} text-xl">
+                                <i class="fa-brands ${t.icon.includes('fa-') && !t.icon.includes('file') && !t.icon.includes('calendar') ? t.icon : ''} ${t.icon.includes('file') || t.icon.includes('calendar') ? 'fa-solid '+t.icon : ''}"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-bold">${t.title}</h4>
+                                <p class="text-brand-purple text-sm font-medium">+${t.reward} DC</p>
+                            </div>
+                        </div>
+                        <button onclick="claimTask('${t.id}', ${t.reward})" class="px-4 py-2 rounded-lg font-bold text-sm transition-colors ${done ? 'bg-green-500/20 text-green-400 cursor-not-allowed' : 'bg-brand-purple hover:bg-purple-500 text-white shadow-[0_0_10px_rgba(139,92,246,0.5)]'}" ${done ? 'disabled' : ''}>
+                            ${done ? '<i class="fa-solid fa-check"></i> Claimed' : 'Claim'}
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        window.claimTask = async (id, reward) => {
+            if(completedTasks.includes(id)) return;
+            wallet.dc += reward;
+            completedTasks.push(id);
+            await saveWallet();
+            showToast(`Airdrop claimed! +${reward} DC`);
+            renderTasks();
+        };
+
+        let isFlipping = false;
+        window.playCoinFlip = async (prediction) => {
+            if(isFlipping) return;
+            const wager = Number(document.getElementById('game-wager').value);
+            if(wager <= 0 || wager > wallet.dc) return showToast("Invalid wager or insufficient DC.", "error");
+
+            isFlipping = true;
+            wallet.dc -= wager;
+            updateUIBalances(); // immediate deduct
+            
+            const coin = document.getElementById('coin-obj');
+            const resText = document.getElementById('game-result');
+            resText.innerText = 'Flipping...';
+            resText.className = "text-center h-6 font-bold text-lg mt-4 text-gray-400";
+            
+            // Reset class
+            coin.className = 'coin relative';
+            // Force reflow
+            void coin.offsetWidth;
+            
+            const isHeads = Math.random() > 0.5;
+            const result = isHeads ? 'heads' : 'tails';
+            
+            coin.classList.add(isHeads ? 'flipping-heads' : 'flipping-tails');
+            
+            setTimeout(async () => {
+                if(prediction === result) {
+                    const win = wager * 2;
+                    wallet.dc += win;
+                    resText.innerText = `You won ${win} DC!`;
+                    resText.className = "text-center h-6 font-bold text-lg mt-4 text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.8)]";
+                    showToast("Prediction correct!");
+                } else {
+                    resText.innerText = `Ouch, it was ${result.toUpperCase()}.`;
+                    resText.className = "text-center h-6 font-bold text-lg mt-4 text-red-400";
+                }
+                await saveWallet();
+                isFlipping = false;
+            }, 2000); // Matches CSS transition time
+        };
+
+        window.copyReferral = () => {
+            const el = document.getElementById('ref-link-input');
+            el.select();
+            document.execCommand('copy');
+            showToast("Referral link copied!");
+        };
+
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            if(auth) signOut(auth).then(() => window.location.reload());
+            else window.location.reload();
+        });
+
+    </script>
+</body>
+</html>
