@@ -376,6 +376,12 @@
                                     <span class="text-gray-400">Total Yield Earned</span>
                                     <span id="stat-earned" class="font-bold text-green-400 text-lg">+0.00</span>
                                 </div>
+                                
+                                <button onclick="claimYield()" id="btn-claim-yield" class="w-full my-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3.5 px-4 rounded-xl transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(16,185,129,0.3)] flex items-center justify-center space-x-2 text-lg">
+                                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                                    <span>Claim Generated Yield</span>
+                                </button>
+                                
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-400">Est. Next 30 Days (3%)</span>
                                     <span id="stat-projected" class="font-bold text-brand-purple text-lg">0.00</span>
@@ -464,6 +470,12 @@
                                 <div>
                                     <label class="block text-sm font-medium text-gray-400 mb-2">Destination Address (BEP20)</label>
                                     <input type="text" placeholder="0x..." class="w-full glass-input rounded-xl px-4 py-3.5 text-white font-mono text-sm focus:outline-none">
+                                </div>
+
+                                <div class="bg-black/30 rounded-xl p-5 border border-white/5 text-sm mb-4">
+                                    <div class="flex justify-between text-gray-400 mb-3"><span>Network:</span><span class="text-white font-medium">BEP20</span></div>
+                                    <div class="flex justify-between text-gray-400 mb-3"><span>Platform Fee (5%):</span><span id="withdraw-fee" class="text-red-400 font-mono">-0.00 USDT</span></div>
+                                    <div class="flex justify-between text-gray-400 pt-3 border-t border-white/10"><span>You Will Receive:</span><span id="withdraw-receive" class="text-green-400 font-bold text-lg">0.00 USDT</span></div>
                                 </div>
 
                                 <button onclick="handleWithdraw()" class="w-full bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/30 font-bold py-3.5 rounded-xl transition-all">
@@ -841,7 +853,7 @@
         // State
         let user = null;
         let profile = {};
-        let wallet = { usdt: 1000, dcPlus: 0, dc: 50 }; // Default mock start
+        let wallet = { usdt: 1000, dcPlus: 0, dc: 50, claimedYield: 0 }; // Default mock start
         let stakes = [ { id: 'mock-stake-1', amount: 1000, date: Date.now() - (86400000 * 5) } ]; // Pre-populate with 1000 DC+ staked 5 days ago
         let refStats = { rank: 'Gold Affiliate', count: 24, income: 450.75, downlineVolume: 32400.00, downlineDeposits: 21500.00, downlineWithdrawals: 5200.00 }; // Mock Referral Stats
         let completedTasks = [];
@@ -850,7 +862,7 @@
         window.consecutiveLosses = 0; // Rigged game tracker
         window.pendingStakeAmount = 0;
         window.pendingUnstakeId = null;
-
+        window.pendingYieldGlobal = 0; // Tracks claimable yield
         const tasksList = [
             { id: 't1', title: 'Follow on Twitter', reward: 50, icon: 'fa-twitter', color: 'text-blue-400' },
             { id: 't2', title: 'Join Telegram Chat', reward: 50, icon: 'fa-telegram', color: 'text-blue-500' },
@@ -1144,6 +1156,16 @@
             if(el) { el.value = wallet.usdt; el.dispatchEvent(new Event('input')); }
         };
 
+        document.getElementById('withdraw-amount').addEventListener('input', (e) => {
+            const amt = Number(e.target.value);
+            const fee = amt * 0.05;
+            const receive = amt - fee;
+            const feeEl = document.getElementById('withdraw-fee');
+            const recEl = document.getElementById('withdraw-receive');
+            if(feeEl) feeEl.innerText = '-' + formatNum(fee) + ' USDT';
+            if(recEl) recEl.innerText = formatNum(Math.max(0, receive)) + ' USDT';
+        });
+
         window.handleDeposit = async () => {
             const amt = Number(document.getElementById('deposit-amount').value);
             if(amt <= 0) return showToast("Enter a valid amount.", "error");
@@ -1156,10 +1178,15 @@
         window.handleWithdraw = async () => {
             const amt = Number(document.getElementById('withdraw-amount').value);
             if(amt <= 0 || amt > wallet.usdt) return showToast("Invalid amount or insufficient USDT.", "error");
+            
+            const fee = amt * 0.05;
             wallet.usdt -= amt;
             await saveWallet();
-            showToast(`Withdrawal of ${formatNum(amt)} USDT initiated.`, "success");
+            
+            showToast(`Withdrawal of ${formatNum(amt - fee)} USDT initiated (5% fee applied).`, "success");
+            
             document.getElementById('withdraw-amount').value = '';
+            document.getElementById('withdraw-amount').dispatchEvent(new Event('input'));
         };
 
         let swapDirection = 'USDT_TO_DCPLUS';
@@ -1325,7 +1352,7 @@
 
         function updateStakesUI() {
             const list = document.getElementById('stakes-list');
-            let total = 0, earned = 0;
+            let total = 0, theoreticalEarned = 0;
             
             if(stakes.length === 0) {
                 list.innerHTML = `<div class="text-center text-gray-500 py-10"><i class="fa-solid fa-box-open text-4xl mb-3 opacity-50"></i><p>No active stakes.</p></div>`;
@@ -1334,10 +1361,11 @@
                 stakes.sort((a,b)=>b.date - a.date).forEach(s => {
                     // Inject local ID if missing
                     if (!s.id) s.id = String(s.date + Math.random());
+                    if (!s.lastClaimed) s.lastClaimed = s.date;
                     
                     total += s.amount;
                     // Mock earned calc
-                    const days = (Date.now() - s.date) / (1000 * 3600 * 24);
+                    const days = (Date.now() - s.lastClaimed) / (1000 * 3600 * 24);
                     const sEarned = s.amount * 0.03 * (days / 30);
                     earned += sEarned;
                     
@@ -1361,11 +1389,33 @@
                 });
             }
             
+            window.currentUnclaimedYield = earned;
+            
             document.getElementById('stat-staked').innerText = formatNum(total) + ' DC+';
             document.getElementById('stat-daily').innerText = '+' + formatNum(total * 0.001) + ' DC+';
             document.getElementById('stat-earned').innerText = '+' + formatNum(earned) + ' DC+';
             document.getElementById('stat-projected').innerText = '+' + formatNum(total * 0.03) + ' DC+';
         }
+
+        window.claimYield = async () => {
+            if(!window.currentUnclaimedYield || window.currentUnclaimedYield <= 0) return showToast("No yield available to claim.", "error");
+
+            const btn = document.getElementById('btn-claim-yield');
+            if(btn) btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing...`;
+
+            wallet.dcPlus += window.currentUnclaimedYield;
+
+            // Reset timers
+            stakes.forEach(s => s.lastClaimed = Date.now());
+
+            await saveWallet();
+            updateStakesUI();
+
+            showToast(`Successfully claimed ${formatNum(window.currentUnclaimedYield)} DC+!`);
+            window.currentUnclaimedYield = 0;
+            
+            if(btn) btn.innerHTML = `<i class="fa-solid fa-hand-holding-dollar"></i> <span>Claim Generated Yield</span>`;
+        };
 
         function renderTasks() {
             const container = document.getElementById('tasks-container');
